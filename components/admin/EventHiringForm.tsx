@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Calendar, MapPin, Users, MessageSquare, Layers } from "lucide-react";
+import { Plus, Trash2, Calendar, MapPin, Users, MessageSquare, Layers, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
