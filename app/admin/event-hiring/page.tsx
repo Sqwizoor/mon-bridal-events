@@ -10,7 +10,7 @@ import { useState } from "react";
 import EventHiringForm from "@/components/admin/EventHiringForm";
 
 export default function EventHiringPage() {
-  const hireRequests = useQuery(api.hireRequests.getAll);
+  const hireRequests = useQuery(api.hireRequests.getAll, {});
   const [showForm, setShowForm] = useState(false);
 
   const stats = {
