@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
 
   const [selectedItems, setSelectedItems] = useState<
     Array<{
-      productId: string;
+      productId: Id<"products">;
       name: string;
       quantity: number;
       hirePrice: number;
@@ -141,7 +142,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-purple-800 border-b border-purple-100 pb-2">
           <Users className="h-5 w-5" />
-          <h3 className="font-semibold text-lg uppercase tracking-wider text-sm">Guest Details</h3>
+          <h3 className="font-semibold uppercase tracking-wider text-sm">Guest Details</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -188,7 +189,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-purple-800 border-b border-purple-100 pb-2">
           <Calendar className="h-5 w-5" />
-          <h3 className="font-semibold text-lg uppercase tracking-wider text-sm">Event Logistics</h3>
+          <h3 className="font-semibold uppercase tracking-wider text-sm">Event Logistics</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="grid grid-cols-2 gap-4">
@@ -260,7 +261,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-purple-800 border-b border-purple-100 pb-2">
           <Layers className="h-5 w-5" />
-          <h3 className="font-semibold text-lg uppercase tracking-wider text-sm">Hiring Items</h3>
+          <h3 className="font-semibold uppercase tracking-wider text-sm">Hiring Items</h3>
         </div>
         
         <Card className="bg-purple-50/30 border-purple-100 shadow-none">
