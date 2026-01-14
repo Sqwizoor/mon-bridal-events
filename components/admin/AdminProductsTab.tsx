@@ -88,7 +88,6 @@ const DECOR_TYPES = [
 interface ProductFormData {
   name: string;
   description: string;
-  description: string;
   price: string;
   compareAtPrice: string;
   category: "jewelry" | "decor";
