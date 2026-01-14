@@ -111,7 +111,6 @@ interface ProductFormData {
 const initialFormData: ProductFormData = {
   name: "",
   description: "",
-  description: "",
   price: "",
   compareAtPrice: "",
   category: "jewelry",
