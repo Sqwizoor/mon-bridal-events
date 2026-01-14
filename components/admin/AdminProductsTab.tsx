@@ -169,7 +169,6 @@ export default function AdminProductsTab({ initialCategory = "all" }: AdminProdu
       ...initialFormData,
       name: product.name,
       description: product.description,
-      description: product.description,
       price: product.price.toString(),
       compareAtPrice: product.compareAtPrice?.toString() || "",
       category: product.category,
