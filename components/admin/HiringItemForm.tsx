@@ -1,0 +1,363 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Upload, Sparkles, Tag, DollarSign, FileText, Image as ImageIcon, Trash2, ShieldCheck, Layers } from "lucide-react";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  hirePrice: z.string().min(1, "Hire price is required"),
+  depositAmount: z.string().min(1, "Deposit amount is required"),
+  category: z.literal("decor"),
+  decorType: z.enum([
+    "candle_holders", "vases", "table_linen", "underplates", "crockery", 
+    "cutlery", "glassware", "cake_stands", "lanterns", "furniture", 
+    "easels", "candy_jars", "chalkboards", "gift_holders", "lawn_games", 
+    "pots_buckets", "table_decor", "miscellaneous"
+  ]),
+  images: z.array(z.instanceof(File)).optional(),
+  stockQuantity: z.string().min(1, "Quantity is required"),
+  sku: z.string().optional(),
+});
+
+type FormData = {
+  name: string;
+  description: string;
+  hirePrice: string;
+  depositAmount: string;
+  category: "decor";
+  decorType: "candle_holders" | "vases" | "table_linen" | "underplates" | "crockery" | "cutlery" | "glassware" | "cake_stands" | "lanterns" | "furniture" | "easels" | "candy_jars" | "chalkboards" | "gift_holders" | "lawn_games" | "pots_buckets" | "table_decor" | "miscellaneous";
+  images?: File[];
+  stockQuantity: string;
+  sku?: string;
+};
+
+interface HiringItemFormProps {
+  onSuccess?: () => void;
+}
+
+export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
+  const [uploading, setUploading] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const createProduct = useMutation(api.products.create);
+  const generateUploadUrl = useMutation(api.products.generateUploadUrl);
+
+  const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      hirePrice: "",
+      depositAmount: "",
+      category: "decor",
+      decorType: "table_decor",
+      images: [],
+      stockQuantity: "1",
+      sku: "",
+    },
+  });
+
+  const imageFiles = watch("images");
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length > 0) {
+      const currentFiles = imageFiles || [];
+      const newFiles = [...currentFiles, ...files];
+      setValue("images", newFiles);
+      
+      const previews: string[] = [];
+      newFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previews.push(reader.result as string);
+          if (previews.length === newFiles.length) {
+            setImagePreviews(previews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setImagePreviews(newPreviews);
+    
+    const currentFiles = imageFiles || [];
+    const newFiles = currentFiles.filter((_, i) => i !== index);
+    setValue("images", newFiles);
+  };
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      setUploading(true);
+      
+      const uploadedImages: any[] = [];
+
+      if (data.images && data.images.length > 0) {
+        for (let i = 0; i < data.images.length; i++) {
+          const image = data.images[i];
+          const postUrl = await generateUploadUrl();
+          const result = await fetch(postUrl, {
+            method: "POST",
+            headers: { "Content-Type": image.type },
+            body: image,
+          });
+          const { storageId } = await result.json();
+          uploadedImages.push({
+            storageId,
+            alt: `${data.name} - Image ${i + 1}`,
+            isPrimary: i === 0,
+            displayOrder: i,
+          });
+        }
+      }
+
+      await (createProduct as any)({
+        name: data.name,
+        description: data.description,
+        price: 0, // Base price for sale is 0 for hire items
+        category: "decor",
+        decorType: data.decorType,
+        images: uploadedImages.length > 0 ? uploadedImages : undefined,
+        imageStorageId: uploadedImages.length > 0 ? uploadedImages[0].storageId : undefined,
+        stockQuantity: parseInt(data.stockQuantity),
+        sku: data.sku,
+        isForHire: true,
+        hirePrice: parseFloat(data.hirePrice),
+        depositAmount: parseFloat(data.depositAmount),
+        isActive: true,
+      });
+
+      toast.success("Hiring item created successfully!");
+      reset();
+      setImagePreviews([]);
+      onSuccess?.();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create hiring item");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Details */}
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-800">
+              <Sparkles className="h-5 w-5" />
+              Item Details
+            </h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="name">Item Name *</Label>
+              <Input
+                id="name"
+                placeholder="e.g., Vintage Gold Candelabra"
+                {...register("name")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe the item's style and condition..."
+                {...register("description")}
+                className="border-purple-100 focus:ring-purple-500 min-h-[120px]"
+              />
+              {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="decorType">Decor Type</Label>
+              <Select onValueChange={(val) => setValue("decorType", val as any)} defaultValue="table_decor">
+                <SelectTrigger className="border-purple-100">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="candle_holders">Candle Holders</SelectItem>
+                  <SelectItem value="vases">Vases</SelectItem>
+                  <SelectItem value="table_linen">Table Linen</SelectItem>
+                  <SelectItem value="underplates">Underplates</SelectItem>
+                  <SelectItem value="crockery">Crockery</SelectItem>
+                  <SelectItem value="cutlery">Cutlery</SelectItem>
+                  <SelectItem value="glassware">Glassware</SelectItem>
+                  <SelectItem value="cake_stands">Cake Stands</SelectItem>
+                  <SelectItem value="lanterns">Lanterns</SelectItem>
+                  <SelectItem value="furniture">Furniture</SelectItem>
+                  <SelectItem value="easels">Easels</SelectItem>
+                  <SelectItem value="candy_jars">Candy Jars</SelectItem>
+                  <SelectItem value="chalkboards">Chalkboards</SelectItem>
+                  <SelectItem value="gift_holders">Gift Holders</SelectItem>
+                  <SelectItem value="lawn_games">Lawn Games</SelectItem>
+                  <SelectItem value="pots_buckets">Pots & Buckets</SelectItem>
+                  <SelectItem value="table_decor">Table Decor</SelectItem>
+                  <SelectItem value="miscellaneous">Miscellaneous</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="sku">SKU (Optional)</Label>
+              <Input
+                id="sku"
+                placeholder="EV-001"
+                {...register("sku")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="hirePrice" className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-purple-600" />
+                Price Per Day (R) *
+              </Label>
+              <Input
+                id="hirePrice"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                {...register("hirePrice")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+              <p className="text-[10px] text-muted-foreground">Fee charged per day</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="depositAmount" className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-purple-600" />
+                Deposit (R) *
+              </Label>
+              <Input
+                id="depositAmount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                {...register("depositAmount")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+              <p className="text-[10px] text-muted-foreground">Refundable security deposit</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stockQuantity" className="flex items-center gap-2">
+              <Layers className="h-4 w-4 text-purple-600" />
+              Quantity Available
+            </Label>
+            <Input
+              id="stockQuantity"
+              type="number"
+              {...register("stockQuantity")}
+              className="border-purple-100 focus:ring-purple-500"
+            />
+          </div>
+        </div>
+
+        {/* Right Column: Media */}
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-800">
+              <ImageIcon className="h-5 w-5" />
+              Media & Images
+            </h3>
+            
+            <div className="relative">
+              <input
+                id="images"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="images"
+                className="flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-purple-200 rounded-xl cursor-pointer hover:bg-purple-50/50 transition-all group"
+              >
+                <div className="text-center p-6">
+                  <div className="bg-purple-100 p-3 rounded-full inline-block mb-3 group-hover:scale-110 transition-transform">
+                    <Upload className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <p className="text-sm font-medium text-purple-900">Upload Item Images</p>
+                  <p className="text-xs text-purple-600/70 mt-1">Select multiple high-quality photos</p>
+                </div>
+              </label>
+            </div>
+
+            {imagePreviews.length > 0 && (
+              <div className="grid grid-cols-3 gap-3">
+                {imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative aspect-square group rounded-lg overflow-hidden border border-purple-100">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                    {index === 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-purple-600/90 text-[10px] text-white py-0.5 text-center">
+                        Primary
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-purple-50">
+        <Button
+          type="submit"
+          disabled={uploading}
+          className="w-full lg:w-auto px-8 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200/50 transition-all cursor-pointer"
+        >
+          {uploading ? (
+            <span className="flex items-center gap-2">
+              <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Creating Item...
+            </span>
+          ) : (
+            "Create Hiring Item"
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
