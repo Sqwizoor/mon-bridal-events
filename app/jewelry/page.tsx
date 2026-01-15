@@ -144,7 +144,7 @@ export default function JewelryPage() {
               <button
                 key={category.value}
                 onClick={() => setSelectedCategory(category.value)}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 md:px-4 md:py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 md:flex-shrink snap-start ${
+                className={`inline-flex items-center gap-2 px-5 py-2.5 md:px-4 md:py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap shrink-0 md:shrink snap-start ${
                   selectedCategory === category.value
                     ? "bg-black text-white shadow-lg"
                     : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
@@ -162,7 +162,7 @@ export default function JewelryPage() {
               <button
                 key={category.value}
                 onClick={() => setSelectedCategory(category.value)}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 md:px-4 md:py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 md:flex-shrink snap-start ${
+                className={`inline-flex items-center gap-2 px-5 py-2.5 md:px-4 md:py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap shrink-0 md:shrink snap-start ${
                   selectedCategory === category.value
                     ? "bg-black text-white shadow-lg"
                     : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
@@ -196,7 +196,7 @@ export default function JewelryPage() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Select value={priceRange} onValueChange={setPriceRange}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-37.5">
                 <SelectValue placeholder="Price Range" />
               </SelectTrigger>
               <SelectContent>
@@ -208,7 +208,7 @@ export default function JewelryPage() {
               </SelectContent>
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-45">
                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -338,7 +338,7 @@ export default function JewelryPage() {
                 <Button 
                   onClick={() => setVisibleCount(prev => prev + 12)}
                   variant="outline"
-                  className="px-8 min-w-[200px]"
+                  className="px-8 min-w-50"
                 >
                   Load More
                 </Button>

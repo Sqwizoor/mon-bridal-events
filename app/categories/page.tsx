@@ -34,7 +34,7 @@ const JEWELRY_CATEGORIES = [
 
 export default function CategoriesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
       {/* Hero */}
       <section className="bg-black text-white py-16">
         <div className="container px-4 md:px-6 text-center">
@@ -52,7 +52,7 @@ export default function CategoriesPage() {
         {/* Jewelry Section */}
         <section>
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center">
               <Gem className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -73,7 +73,7 @@ export default function CategoriesPage() {
                   alt={category.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6">
                   <span className="text-2xl md:text-3xl mb-1">{category.icon}</span>
                   <h3 className="font-semibold text-white text-sm md:text-base">{category.name}</h3>
@@ -90,7 +90,7 @@ export default function CategoriesPage() {
         {/* Decor Section */}
         <section>
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
               <Palette className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -111,7 +111,7 @@ export default function CategoriesPage() {
                   alt={category.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6">
                   <span className="text-2xl md:text-3xl mb-1">{category.icon}</span>
                   <h3 className="font-semibold text-white text-sm md:text-base">{category.name}</h3>
@@ -126,7 +126,7 @@ export default function CategoriesPage() {
         </section>
 
         {/* CTA */}
-        <section className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-8 md:p-12 text-center">
+        <section className="bg-linear-to-r from-amber-50 to-orange-50 rounded-3xl p-8 md:p-12 text-center">
           <Sparkles className="h-10 w-10 text-amber-500 mx-auto mb-4" />
           <h2 className="font-serif text-2xl md:text-3xl font-bold mb-4">
             Can't find what you're looking for?

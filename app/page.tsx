@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery, usePaginatedQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ProductCard from "@/components/ProductCard";
 import Marquee from "@/components/ui/marquee";
@@ -22,11 +23,8 @@ import {
 import { HeroSection } from "@/components/Hero";
 
 export default function Home() {
-  const { results: featuredProducts, status, loadMore } = usePaginatedQuery(
-    api.products.getFeaturedPaginated,
-    {},
-    { initialNumItems: 8 }
-  );
+  const [visibleCount, setVisibleCount] = useState(8);
+  const featuredProducts = useQuery(api.products.getFeatured, { limit: 24 });
   const newJewelry = useQuery(api.products.get, {
     category: "jewelry",
     isActive: true,
@@ -74,7 +72,7 @@ export default function Home() {
             <div className="md:hidden flex flex-col gap-6">
               <Marquee pauseOnHover className="[--duration:30s]">
                 {featuredProducts.slice(0, Math.ceil(featuredProducts.length / 2)).map((product: any) => (
-                  <div key={product._id} className="w-[170px]">
+                  <div key={product._id} className="w-42.5">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -90,24 +88,24 @@ export default function Home() {
 
             {/* Desktop Grid View */}
             <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product: any) => (
+              {featuredProducts.slice(0, visibleCount).map((product: any) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
 
             {/* Pagination */}
-            <div className="mt-8 flex justify-center w-full">
-              {status === "CanLoadMore" && (
+            {featuredProducts.length > visibleCount && (
+              <div className="mt-8 flex justify-center w-full">
                 <Button 
-                  onClick={() => loadMore(8)} 
+                  onClick={() => setVisibleCount(prev => prev + 8)} 
                   variant="outline"
                   size="lg"
                   className="px-8 min-w-[200px]"
                 >
                   Load More Products
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -145,7 +143,7 @@ export default function Home() {
           </Link>
 
           {/* Decor Card */}
-          <Link href="/decor" className="group relative overflow-hidden rounded-2xl aspect-[2/1] bg-muted block">
+          <Link href="/decor" className="group relative overflow-hidden rounded-2xl aspect-2/1 bg-muted block">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
             <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
@@ -195,7 +193,7 @@ export default function Home() {
             </div>
 
             {/* Image Side */}
-            <div className="relative h-[400px] w-[300px] mx-auto overflow-hidden rounded-2xl shadow-xl">
+            <div className="relative h-100 w-75 mx-auto overflow-hidden rounded-2xl shadow-xl">
               <img 
                 src="/owner-image.jpg" 
                 alt="Founder of MON Bridal and Events" 

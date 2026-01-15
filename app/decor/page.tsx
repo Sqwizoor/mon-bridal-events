@@ -130,7 +130,7 @@ export default function DecorPage() {
                 <button
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
-                  className={`group relative w-[160px] h-[110px] mx-2 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg flex-shrink-0 ${
+                  className={`group relative w-40 h-27.5 mx-2 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg shrink-0 ${
                     selectedCategory === category.value
                       ? "ring-2 ring-primary ring-offset-2"
                       : ""
@@ -185,7 +185,7 @@ export default function DecorPage() {
           </div>
           <div className="flex gap-2">
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-45">
                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
@@ -303,7 +303,7 @@ export default function DecorPage() {
                 <Button 
                   onClick={() => setVisibleCount(prev => prev + 12)}
                   variant="outline"
-                  className="px-8 min-w-[200px]"
+                  className="px-8 min-w-50"
                 >
                   Load More
                 </Button>
