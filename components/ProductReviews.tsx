@@ -74,7 +74,7 @@ export default function ProductReviews({ productId, productName }: ProductReview
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10 border">
-                      <AvatarImage src={review.authorAvatar ? `/storage/${review.authorAvatar}` : undefined} />
+                      <AvatarImage src={review.authorAvatar || undefined} />
                       <AvatarFallback className="bg-purple-100 text-purple-700 font-bold">
                         {review.authorName?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
                       </AvatarFallback>

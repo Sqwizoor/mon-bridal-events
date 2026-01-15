@@ -79,24 +79,48 @@ export const getByProduct = query({
     productId: v.id("products"),
   },
   handler: async (ctx, args) => {
-    const reviews = await ctx.db
-      .query("reviews")
-      .withIndex("by_product", (q) => q.eq("productId", args.productId))
-      .order("desc") // Most recent first
-      .take(10); // Limit to recent 10 for now or implement pagination
+    try {
+      const reviews = await ctx.db
+        .query("reviews")
+        .withIndex("by_product", (q) => q.eq("productId", args.productId))
+        .order("desc") // Most recent first
+        .take(10); // Limit to recent 10 for now or implement pagination
 
-    // Fetch user details for each review to show author name
-    const reviewsWithAuthors = await Promise.all(
-        reviews.map(async (review) => {
-            const author = await ctx.db.get(review.userId);
-            return {
-                ...review,
-                authorName: author?.name || "Anonymous",
-                authorAvatar: author?.avatarStorageId
-            };
-        })
-    );
+      // Fetch user details for each review to show author name
+      const reviewsWithAuthors = await Promise.all(
+          reviews.map(async (review) => {
+              try {
+                  const author = await ctx.db.get(review.userId);
+                  let avatarUrl = null;
+                  
+                  // Safely get avatar URL if author exists and has avatar
+                  if (author?.avatarStorageId) {
+                      try {
+                          avatarUrl = await ctx.storage.getUrl(author.avatarStorageId);
+                      } catch {
+                          avatarUrl = null;
+                      }
+                  }
+                  
+                  return {
+                      ...review,
+                      authorName: author?.name || "Anonymous",
+                      authorAvatar: avatarUrl
+                  };
+              } catch {
+                  return {
+                      ...review,
+                      authorName: "Anonymous",
+                      authorAvatar: null
+                  };
+              }
+          })
+      );
 
-    return reviewsWithAuthors;
+      return reviewsWithAuthors;
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      return [];
+    }
   },
 });
