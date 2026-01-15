@@ -36,6 +36,7 @@ const formSchema = z.object({
   images: z.array(z.instanceof(File)).optional(),
   stockQuantity: z.string().min(1, "Quantity is required"),
   sku: z.string().optional(),
+  color: z.string().optional(),
   isFeatured: z.boolean(),
   isNew: z.boolean(),
   isOnSale: z.boolean(),
@@ -51,6 +52,7 @@ type FormData = {
   images?: File[];
   stockQuantity: string;
   sku?: string;
+  color?: string;
   isFeatured: boolean;
   isNew: boolean;
   isOnSale: boolean;
@@ -81,6 +83,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
       images: [],
       stockQuantity: "1",
       sku: "",
+      color: "",
     },
   });
 
@@ -153,6 +156,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
         images: uploadedImages.length > 0 ? uploadedImages : undefined,
         imageStorageId: uploadedImages.length > 0 ? uploadedImages[0].storageId : undefined,
         stockQuantity: parseInt(data.stockQuantity),
+        colors: data.color ? [{ name: data.color }] : undefined,
         sku: data.sku,
         isForHire: true,
         hirePrice: parseFloat(data.hirePrice),
@@ -243,11 +247,21 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
                 placeholder="EV-001"
                 {...register("sku")}
                 className="border-purple-100 focus:ring-purple-500"
+            
+            <div className="space-y-2">
+              <Label htmlFor="color">Color (Optional)</Label>
+              <Input
+                id="color"
+                placeholder="e.g., Gold, White"
+                {...register("color")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+            </div>
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="hirePrice" className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-purple-600" />
@@ -279,60 +293,57 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
               />
               <p className="text-[10px] text-muted-foreground">Refundable security deposit</p>
             </div>
+            
+            <div className="space-y-2 col-span-2 lg:col-span-1">
+              <Label htmlFor="stockQuantity" className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-purple-600" />
+                Quantity
+              </Label>
+              <Input
+                id="stockQuantity"
+                type="number"
+                {...register("stockQuantity")}
+                className="border-purple-100 focus:ring-purple-500"
+              />
+            </div>
           </div>
-
 
           <div className="space-y-4 pt-4 border-t border-purple-100">
             <h3 className="text-sm font-semibold text-purple-800">Status & Visibility</h3>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isFeatured" className="text-sm font-medium">Featured Item</Label>
-                  <p className="text-[10px] text-muted-foreground">Display on homepage</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="flex flex-col items-start gap-3 p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="flex items-center justify-between w-full">
+                   <Label htmlFor="isFeatured" className="text-sm font-medium">Featured</Label>
+                   <Switch
+                     id="isFeatured"
+                     checked={watch("isFeatured")}
+                     onCheckedChange={(checked) => setValue("isFeatured", checked)}
+                   />
                 </div>
-                <Switch
-                  id="isFeatured"
-                  checked={watch("isFeatured")}
-                  onCheckedChange={(checked) => setValue("isFeatured", checked)}
-                />
               </div>
               
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isNew" className="text-sm font-medium">New Arrival</Label>
-                  <p className="text-[10px] text-muted-foreground">Mark as new item</p>
+              <div className="flex flex-col items-start gap-3 p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="flex items-center justify-between w-full">
+                  <Label htmlFor="isNew" className="text-sm font-medium">New Item</Label>
+                  <Switch
+                    id="isNew"
+                    checked={watch("isNew")}
+                    onCheckedChange={(checked) => setValue("isNew", checked)}
+                  />
                 </div>
-                <Switch
-                  id="isNew"
-                  checked={watch("isNew")}
-                  onCheckedChange={(checked) => setValue("isNew", checked)}
-                />
               </div>
 
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
-                <div className="space-y-0.5">
+              <div className="flex flex-col items-start gap-3 p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="flex items-center justify-between w-full">
                   <Label htmlFor="isOnSale" className="text-sm font-medium">On Sale</Label>
-                  <p className="text-[10px] text-muted-foreground">Mark as discounted</p>
+                  <Switch
+                    id="isOnSale"
+                    checked={watch("isOnSale")}
+                    onCheckedChange={(checked) => setValue("isOnSale", checked)}
+                  />
                 </div>
-                <Switch
-                  id="isOnSale"
-                  checked={watch("isOnSale")}
-                  onCheckedChange={(checked) => setValue("isOnSale", checked)}
-                />
               </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="stockQuantity" className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-purple-600" />
-              Quantity Available
-            </Label>
-            <Input
-              id="stockQuantity"
-              type="number"
-              {...register("stockQuantity")}
-              className="border-purple-100 focus:ring-purple-500"
-            />
           </div>
         </div>
 

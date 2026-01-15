@@ -1,0 +1,102 @@
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
+
+export const create = mutation({
+  args: {
+    productId: v.id("products"),
+    rating: v.number(),
+    title: v.optional(v.string()),
+    content: v.string(),
+    images: v.optional(v.array(v.id("_storage"))),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("You must be logged in to leave a review");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if user has already reviewed this product?
+    // Optional: Only allow one review per product per user
+    const existingReview = await ctx.db
+      .query("reviews")
+      .withIndex("by_product", (q) => q.eq("productId", args.productId))
+      .filter((q) => q.eq(q.field("userId"), user._id))
+      .first();
+
+    if (existingReview) {
+      // Allow updating? or throw error? For now, throw error
+      throw new Error("You have already reviewed this product");
+    }
+
+    // Calculate new average rating for the product
+    const productReviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_product", (q) => q.eq("productId", args.productId))
+      .collect();
+    
+    // Add the current review to the calculation
+    const currentRatingCount = productReviews.length;
+    const currentTotalRating = productReviews.reduce((sum, r) => sum + r.rating, 0);
+    
+    // New review stats
+    const newRatingCount = currentRatingCount + 1;
+    const newTotalRating = currentTotalRating + args.rating;
+    const newAverageRating = newTotalRating / newRatingCount;
+
+    // Create the review
+    await ctx.db.insert("reviews", {
+        userId: user._id,
+        productId: args.productId,
+        rating: args.rating,
+        title: args.title,
+        content: args.content,
+        images: args.images,
+        isVerifiedPurchase: false, // You would perform a check against orders here in a real app
+        isApproved: true, // Auto-approve for now
+        createdAt: Date.now(),
+    });
+
+    // Update the product with new rating stats
+    await ctx.db.patch(args.productId, {
+        rating: newAverageRating,
+        reviewCount: newRatingCount,
+    });
+  },
+});
+
+export const getByProduct = query({
+  args: {
+    productId: v.id("products"),
+  },
+  handler: async (ctx, args) => {
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_product", (q) => q.eq("productId", args.productId))
+      .order("desc") // Most recent first
+      .take(10); // Limit to recent 10 for now or implement pagination
+
+    // Fetch user details for each review to show author name
+    const reviewsWithAuthors = await Promise.all(
+        reviews.map(async (review) => {
+            const author = await ctx.db.get(review.userId);
+            return {
+                ...review,
+                authorName: author?.name || "Anonymous",
+                authorAvatar: author?.avatarStorageId
+            };
+        })
+    );
+
+    return reviewsWithAuthors;
+  },
+});

@@ -24,6 +24,8 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
+import { Star } from "lucide-react";
 
 export default function ProductPage() {
   const params = useParams();
@@ -200,6 +202,25 @@ export default function ProductPage() {
             <h1 className="font-serif text-3xl md:text-4xl font-bold">
               {product.name}
             </h1>
+
+            {/* Rating Stars */}
+            <div className="flex items-center gap-1 -mt-4 mb-4 text-sm">
+               <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star 
+                      key={star} 
+                      className={`h-4 w-4 ${star <= (product.rating || 0) ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
+                    />
+                  ))}
+               </div>
+               <span className="text-muted-foreground font-medium ml-2">
+                  {product.rating ? product.rating.toFixed(1) : "0.0"}
+               </span>
+               <span className="text-gray-300 mx-2">•</span>
+               <a href="#reviews" className="text-blue-600 hover:underline">
+                  {product.reviewCount || 0} Reviews
+               </a>
+            </div>
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
@@ -406,6 +427,14 @@ export default function ProductPage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div id="reviews">
+          <ProductReviews 
+            productId={product._id} 
+            productName={product.name} 
+          />
         </div>
 
         {/* Related Products */}

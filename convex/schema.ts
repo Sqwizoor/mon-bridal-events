@@ -117,6 +117,10 @@ export default defineSchema({
     // SEO & metadata
     metaTitle: v.optional(v.string()),
     metaDescription: v.optional(v.string()),
+
+    // Reviews
+    rating: v.optional(v.number()), // 1-5 average
+    reviewCount: v.optional(v.number()),
     
     // Timestamps
     createdAt: v.number(),

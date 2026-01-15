@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/lib/CartContext";
-import { Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -29,6 +29,8 @@ interface Product {
   isFeatured?: boolean;
   isNew?: boolean;
   isOnSale?: boolean;
+  rating?: number;
+  reviewCount?: number;
 }
 
 interface ProductCardProps {
@@ -120,6 +122,15 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
 
         {/* Content */}
         <div className="flex-1 px-3 pb-3 pt-0 flex flex-col">
+          {product.rating !== undefined && product.rating > 0 && (
+             <div className="flex items-center gap-1 mt-2 mb-0.5">
+               <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+               <span className="text-[10px] font-medium text-muted-foreground leading-none">
+                  {product.rating.toFixed(1)} <span className="text-gray-300">({product.reviewCount || 0})</span>
+               </span>
+             </div>
+          )}
+          
           {/* Product Name */}
           <h3 className="font-serif text-sm font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors mt-1">
             {product.name}
