@@ -128,7 +128,7 @@ export default function ProductPage() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Image */}
           <div className="relative">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 sticky top-24">
+            <div className="aspect-square rounded-2xl overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 sticky top-24">
               <img
                 src={imageUrl}
                 alt={product.name}

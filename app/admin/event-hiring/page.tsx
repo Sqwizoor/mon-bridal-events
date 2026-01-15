@@ -48,7 +48,7 @@ export default function EventHiringPage() {
         </div>
         <Button
           onClick={() => setShowForm(!showForm)}
-          className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="gap-2 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
         >
           <Plus className="h-4 w-4" />
           New Hire Request
@@ -56,7 +56,7 @@ export default function EventHiringPage() {
       </div>
 
       {showForm && (
-        <Card className="border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+        <Card className="border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
           <CardHeader>
             <CardTitle>Create Event Hire Request</CardTitle>
             <CardDescription>Add a new event decoration hire request</CardDescription>

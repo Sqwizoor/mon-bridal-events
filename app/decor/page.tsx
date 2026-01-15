@@ -84,11 +84,11 @@ export default function DecorPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
       {/* Hero Section */}
       <section className="relative bg-black text-white py-4 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/80 to-black/40" />
         <div className="container mx-auto relative z-10 px-4 md:px-6">
           <div className="max-w-2xl">
             <Badge className="bg-white/10 text-amber-100 border-amber-200/20 mb-6 px-4 py-1.5 font-serif tracking-widest uppercase">
@@ -122,8 +122,8 @@ export default function DecorPage() {
             Browse Categories
           </h2>
           <div className="relative -mx-4 md:mx-0">
-            <div className="absolute left-0 top-0 bottom-0 w-8 md:w-12 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 md:w-12 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-8 md:w-12 bg-linear-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 md:w-12 bg-linear-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
             
             <Marquee pauseOnHover reverse className="[--duration:60s] py-4">
               {DECOR_CATEGORIES.map((category) => (
@@ -313,7 +313,7 @@ export default function DecorPage() {
         )}
 
         {/* How It Works Section */}
-        <section className="mt-20 py-12 px-8 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl">
+        <section className="mt-20 py-12 px-8 bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl">
           <h2 className="font-serif text-3xl font-bold text-center mb-12">
             How Decor Hiring Works
           </h2>

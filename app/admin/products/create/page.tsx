@@ -29,7 +29,7 @@ export default function CreateProductPage() {
         </div>
       </div>
 
-      <Card className="border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+      <Card className="border-amber-200 dark:border-amber-800 bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
         <CardHeader>
           <CardTitle>Product Information</CardTitle>
           <CardDescription>Fill in the details for your new product</CardDescription>

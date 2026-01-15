@@ -23,7 +23,7 @@ export default function HiringItemsPage() {
         </div>
         <Button
           onClick={() => router.push("/admin/hiring-items/create")}
-          className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 cursor-pointer shadow-md"
+          className="gap-2 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           Add Hiring Item

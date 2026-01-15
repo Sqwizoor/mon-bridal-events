@@ -64,7 +64,7 @@ export default function OrdersPage() {
         </Card>
       </div>
 
-      <Card className="bg-gradient-to-br from-emerald-500/5 to-green-500/5 border-emerald-500/10">
+      <Card className="bg-linear-to-br from-emerald-500/5 to-green-500/5 border-emerald-500/10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />

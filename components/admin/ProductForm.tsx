@@ -418,7 +418,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         <Button
           type="submit"
           disabled={uploading}
-          className="w-full lg:w-auto px-8 h-12 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-amber-200/50 transition-all cursor-pointer"
+          className="w-full lg:w-auto px-8 h-12 bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg shadow-amber-200/50 transition-all cursor-pointer"
         >
           {uploading ? (
             <span className="flex items-center gap-2">

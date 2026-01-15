@@ -23,7 +23,7 @@ export default function ProductsPage() {
         </div>
         <Button
           onClick={() => router.push("/admin/products/create")}
-          className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 cursor-pointer shadow-md"
+          className="gap-2 bg-linear-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 cursor-pointer shadow-md"
         >
           <Plus className="h-4 w-4" />
           Add Jewelry Product

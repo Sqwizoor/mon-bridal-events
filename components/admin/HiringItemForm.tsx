@@ -411,7 +411,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
         <Button
           type="submit"
           disabled={uploading}
-          className="w-full lg:w-auto px-8 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200/50 transition-all cursor-pointer"
+          className="w-full lg:w-auto px-8 h-12 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200/50 transition-all cursor-pointer"
         >
           {uploading ? (
             <span className="flex items-center gap-2">

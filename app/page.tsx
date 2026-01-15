@@ -46,7 +46,7 @@ export default function Home() {
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="pt-10 pb-10 md:pb-20 bg-gradient-to-b from-gray-50 to-white">
+        <section className="pt-10 pb-10 md:pb-20 bg-linear-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
               <div>
@@ -126,7 +126,7 @@ export default function Home() {
           {/* Jewelry Card */}
           <Link href="/jewelry" className="group relative overflow-hidden rounded-2xl aspect-[2/1] bg-muted block">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
             <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
               <Badge className="w-fit mb-4 bg-white/20 text-white border-0">
                 <Gem className="h-3 w-3 mr-1" />
@@ -147,7 +147,7 @@ export default function Home() {
           {/* Decor Card */}
           <Link href="/decor" className="group relative overflow-hidden rounded-2xl aspect-[2/1] bg-muted block">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
             <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
               <Badge className="w-fit mb-4 bg-white/20 text-white border-0">
                 <CalendarDays className="h-3 w-3 mr-1" />

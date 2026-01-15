@@ -129,7 +129,7 @@ export default function AdminSidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all hover:bg-accent cursor-pointer",
                     isActive
-                      ? "bg-gradient-to-r from-violet-500/10 to-purple-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20"
+                      ? "bg-linear-to-r from-violet-500/10 to-purple-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >

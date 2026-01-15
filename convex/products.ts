@@ -164,11 +164,17 @@ export const getPaginated = query({
     const productsWithImages = await Promise.all(
       page.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-        } else if (product.images && product.images.length > 0) {
-          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
-          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        try {
+            if (product.imageStorageId) {
+              imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+            } else if (product.images && product.images.length > 0) {
+              const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+              if (primaryImage && primaryImage.storageId) {
+                imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+              }
+            }
+        } catch (error) {
+            console.error("Error generating image URL for product", product._id, error);
         }
         return { ...product, imageUrl };
       })
@@ -195,11 +201,17 @@ export const getFeaturedPaginated = query({
     const productsWithImages = await Promise.all(
       products.page.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-        } else if (product.images && product.images.length > 0) {
-          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
-          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        try {
+            if (product.imageStorageId) {
+              imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+            } else if (product.images && product.images.length > 0) {
+              const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+              if (primaryImage && primaryImage.storageId) {
+                imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+              }
+            }
+        } catch (error) {
+            console.error("Error generating image URL for product", product._id, error);
         }
         return { ...product, imageUrl };
       })

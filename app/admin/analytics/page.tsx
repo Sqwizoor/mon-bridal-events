@@ -80,7 +80,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20">
+        <Card className="bg-linear-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-violet-600 dark:text-violet-400" />
@@ -96,7 +96,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20">
+        <Card className="bg-linear-to-br from-emerald-500/10 to-green-500/10 border-emerald-500/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Order Value</CardTitle>
             <ShoppingCart className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -112,7 +112,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+        <Card className="bg-linear-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
             <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
@@ -126,7 +126,7 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-rose-500/10 to-pink-500/10 border-rose-500/20">
+        <Card className="bg-linear-to-br from-rose-500/10 to-pink-500/10 border-rose-500/20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Products</CardTitle>
             <Package className="h-4 w-4 text-rose-600 dark:text-rose-400" />

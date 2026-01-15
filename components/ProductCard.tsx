@@ -75,7 +75,7 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
       <Link href={`/product/${product._id}`} className="flex flex-col h-full cursor-pointer">
         {/* Image Container */}
         <div className="p-2">
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-linear-to-br from-gray-50 to-gray-100">
             <img 
               src={imageUrl} 
               alt={product.name} 

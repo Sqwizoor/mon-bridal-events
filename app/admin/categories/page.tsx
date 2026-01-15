@@ -119,7 +119,7 @@ export default function CategoriesPage() {
                 <RefreshCw className="h-4 w-4" />
                 Seed Manual Defaults
             </Button>
-            <Button onClick={() => handleOpen()} className="gap-2 bg-gradient-to-r from-amber-600 to-orange-600">
+            <Button onClick={() => handleOpen()} className="gap-2 bg-linear-to-r from-amber-600 to-orange-600">
             <Plus className="h-4 w-4" />
             Add Category
             </Button>

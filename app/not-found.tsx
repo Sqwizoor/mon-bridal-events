@@ -6,7 +6,7 @@ import { Home, Search, ArrowLeft, Sparkles } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-[80vh] flex items-center justify-center bg-linear-to-b from-white to-gray-50">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center text-center space-y-8">
           {/* Animated 404 */}
@@ -15,7 +15,7 @@ export default function NotFound() {
               404
             </h1>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-transparent bg-clip-text">
+              <div className="bg-linear-to-r from-amber-400 to-orange-500 text-transparent bg-clip-text">
                 <Sparkles className="h-16 w-16 text-amber-400 animate-pulse" />
               </div>
             </div>

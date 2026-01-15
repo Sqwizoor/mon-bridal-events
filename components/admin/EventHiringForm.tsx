@@ -348,7 +348,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
                 </div>
               ))}
             </div>
-            <div className="p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-between">
+            <div className="p-4 bg-linear-to-r from-purple-600 to-pink-600 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 opacity-80" />
                 <span className="font-medium tracking-wide uppercase text-xs">Estimated Total</span>
@@ -362,7 +362,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
       <div className="pt-6 border-t border-purple-50 flex justify-end">
         <Button
           type="submit"
-          className="w-full md:w-auto px-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 cursor-pointer transition-all active:scale-[0.98]"
+          className="w-full md:w-auto px-12 h-12 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 cursor-pointer transition-all active:scale-[0.98]"
         >
           Generate Hire Booking
         </Button>
