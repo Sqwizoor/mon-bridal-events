@@ -7,6 +7,11 @@ import { useCart } from "@/lib/CartContext";
 import { Heart, ShoppingBag, Eye, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 interface Product {
   _id: string;
@@ -41,7 +46,14 @@ interface ProductCardProps {
 export default function ProductCard({ product, showQuickView = true }: ProductCardProps) {
   const { addToCart } = useCart();
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { isSignedIn } = useUser();
+  
+  // Wishlist functionality
+  const isWishlisted = useQuery(
+    api.wishlist.isInWishlist, 
+    isSignedIn ? { productId: product._id as Id<"products"> } : "skip"
+  );
+  const toggleWishlist = useMutation(api.wishlist.toggle);
 
   const imageUrl = product.imageUrl || "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop";
   const isOutOfStock = product.stockQuantity !== undefined && product.stockQuantity <= 0;
@@ -60,10 +72,25 @@ export default function ProductCard({ product, showQuickView = true }: ProductCa
     addToCart(product);
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    
+    if (!isSignedIn) {
+      toast.error("Please sign in to save items to your wishlist");
+      return;
+    }
+    
+    try {
+      const result = await toggleWishlist({ productId: product._id as Id<"products"> });
+      if (result.added) {
+        toast.success("Added to wishlist");
+      } else {
+        toast.success("Removed from wishlist");
+      }
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+    }
   };
 
   return (

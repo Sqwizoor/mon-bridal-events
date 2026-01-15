@@ -34,6 +34,7 @@ export default function Navbar() {
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   
   const convexUser = useQuery(api.users.current);
+  const wishlistCount = useQuery(api.wishlist.count) ?? 0;
   const { user: clerkUser, isLoaded } = useUser();
 
   // Only check admin status when data is loaded
@@ -56,7 +57,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-black/10 bg-white text-black backdrop-blur supports-[backdrop-filter]:bg-white/90">
+    <nav className="sticky top-0 z-50 w-full border-b border-black/10 bg-white text-black backdrop-blur supports-backdrop-filter:bg-white/90">
       <div className="container flex h-20 items-center justify-between px-4 md:px-6 md:grid md:grid-cols-[1fr_auto_1fr]">
         
         {/* LEFT SECTION: Mobile Logo & Desktop Links */}
@@ -86,7 +87,7 @@ export default function Navbar() {
                 <ChevronDown className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
               </Link>
               <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="bg-white/95 backdrop-blur-lg border border-black/10 rounded-xl p-4 min-w-[200px] shadow-2xl">
+                <div className="bg-white/95 backdrop-blur-lg border border-black/10 rounded-xl p-4 min-w-50 shadow-2xl">
                   <Link href="/jewelry" className="block px-3 py-2 text-black hover:text-amber-600 transition-colors font-medium cursor-pointer">
                     All Jewelry
                   </Link>
@@ -116,7 +117,7 @@ export default function Navbar() {
                 <ChevronDown className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
               </Link>
               <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="bg-white/95 backdrop-blur-lg border border-black/10 rounded-xl p-4 min-w-[200px] shadow-2xl">
+                <div className="bg-white/95 backdrop-blur-lg border border-black/10 rounded-xl p-4 min-w-50 shadow-2xl">
                   <Link href="/decor" className="block px-3 py-2 text-black hover:text-amber-600 transition-colors font-medium cursor-pointer">
                     All Decor
                   </Link>
@@ -171,6 +172,19 @@ export default function Navbar() {
              </Button>
           )}
 
+          {/* Wishlist */}
+          <Button variant="ghost" size="icon" className="relative text-black hover:bg-black/5 hover:text-black cursor-pointer" asChild>
+            <Link href="/wishlist">
+              <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+              <span className="sr-only">Wishlist</span>
+            </Link>
+          </Button>
+
           {/* Cart */}
           <Button variant="ghost" size="icon" className="relative text-black hover:bg-black/5 hover:text-black cursor-pointer" asChild>
             <Link href="/cart">
@@ -219,7 +233,7 @@ export default function Navbar() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-white text-black border-l-black/10 w-80 sm:w-[350px] overflow-y-auto">
+            <SheetContent side="right" className="bg-white text-black border-l-black/10 w-80 sm:w-87.5 overflow-y-auto">
               <div className="flex flex-col h-full py-6">
                 <SheetClose asChild>
                   <Link href="/" className="mb-8 cursor-pointer self-start pl-4 inline-block">

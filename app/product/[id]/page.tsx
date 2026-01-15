@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
@@ -26,11 +26,14 @@ import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 import { Star } from "lucide-react";
+import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 export default function ProductPage() {
   const params = useParams();
   const productId = params.id as string;
   const { addToCart } = useCart();
+  const { isSignedIn } = useUser();
 
   const product = useQuery(api.products.getById, {
     id: productId as Id<"products">,
@@ -42,10 +45,33 @@ export default function ProductPage() {
     isActive: true,
   });
 
+  // Wishlist functionality
+  const isWishlisted = useQuery(
+    api.wishlist.isInWishlist,
+    isSignedIn ? { productId: productId as Id<"products"> } : "skip"
+  );
+  const toggleWishlist = useMutation(api.wishlist.toggle);
+
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const handleToggleWishlist = async () => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to save items to your wishlist");
+      return;
+    }
+    try {
+      const result = await toggleWishlist({ productId: productId as Id<"products"> });
+      if (result.added) {
+        toast.success("Added to wishlist");
+      } else {
+        toast.success("Removed from wishlist");
+      }
+    } catch (error) {
+      toast.error("Failed to update wishlist");
+    }
+  };
 
   if (product === undefined) {
     return (
@@ -155,7 +181,7 @@ export default function ProductPage() {
 
               {/* Wishlist */}
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={handleToggleWishlist}
                 className={`absolute top-4 right-4 p-3 rounded-full transition-all ${
                   isWishlisted
                     ? "bg-red-500 text-white"
@@ -267,29 +293,24 @@ export default function ProductPage() {
                     {selectedColor || "Select a color"}
                   </span>
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {product.colors.map((color, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedColor(color.name)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full border-2 transition-all ${
                         selectedColor === color.name
-                          ? "border-black ring-2 ring-offset-2 ring-black"
+                          ? "border-black bg-gray-50"
                           : "border-gray-200 hover:border-gray-400"
                       }`}
-                      style={{ backgroundColor: color.hexCode || "#ccc" }}
-                      title={color.name}
                     >
+                      <span
+                        className="w-5 h-5 rounded-full border border-gray-300 shrink-0"
+                        style={{ backgroundColor: color.hexCode || "#ccc" }}
+                      />
+                      <span className="text-sm font-medium">{color.name}</span>
                       {selectedColor === color.name && (
-                        <Check
-                          className={`h-4 w-4 ${
-                            color.hexCode &&
-                            parseInt(color.hexCode.replace("#", ""), 16) <
-                              8388607
-                              ? "text-white"
-                              : "text-black"
-                          }`}
-                        />
+                        <Check className="h-4 w-4 text-green-600" />
                       )}
                     </button>
                   ))}

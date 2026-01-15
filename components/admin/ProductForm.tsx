@@ -19,7 +19,42 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Upload, Package, Tag, DollarSign, FileText, Image as ImageIcon, Trash2 } from "lucide-react";
+import { Upload, Package, Tag, DollarSign, FileText, Image as ImageIcon, Trash2, X, Plus } from "lucide-react";
+
+// Common color options with hex codes
+const COLOR_OPTIONS = [
+  { name: "Gold", hex: "#FFD700" },
+  { name: "Silver", hex: "#C0C0C0" },
+  { name: "Rose Gold", hex: "#B76E79" },
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#FF0000" },
+  { name: "Blue", hex: "#0000FF" },
+  { name: "Green", hex: "#008000" },
+  { name: "Pink", hex: "#FFC0CB" },
+  { name: "Purple", hex: "#800080" },
+  { name: "Orange", hex: "#FFA500" },
+  { name: "Yellow", hex: "#FFFF00" },
+  { name: "Bronze", hex: "#CD7F32" },
+  { name: "Copper", hex: "#B87333" },
+  { name: "Platinum", hex: "#E5E4E2" },
+  { name: "Pearl", hex: "#F0EAD6" },
+  { name: "Champagne", hex: "#F7E7CE" },
+  { name: "Navy", hex: "#000080" },
+  { name: "Burgundy", hex: "#800020" },
+  { name: "Teal", hex: "#008080" },
+  { name: "Ivory", hex: "#FFFFF0" },
+  { name: "Beige", hex: "#F5F5DC" },
+  { name: "Brown", hex: "#8B4513" },
+  { name: "Gray", hex: "#808080" },
+  { name: "Clear", hex: "#E0E0E0" },
+];
+
+// Helper function to get hex code for a color name
+const getColorHex = (colorName: string): string => {
+  const color = COLOR_OPTIONS.find(c => c.name.toLowerCase() === colorName.toLowerCase());
+  return color?.hex || "#CCCCCC";
+};
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,8 +63,6 @@ const formSchema = z.object({
   compareAtPrice: z.string().optional(),
   category: z.literal("jewelry"),
   jewelryType: z.enum(["rings", "necklaces", "earrings", "bracelets", "brooches", "sets", "anklets", "hair_accessories", "other"]),
-  colors: z.string().optional(),
-  sizes: z.string().optional(),
   isFeatured: z.boolean().optional(),
   isOnSale: z.boolean().optional(),
   saleEndDate: z.string().optional(),
@@ -45,8 +78,6 @@ type FormData = {
   compareAtPrice?: string;
   category: "jewelry";
   jewelryType: "rings" | "necklaces" | "earrings" | "bracelets" | "brooches" | "sets" | "anklets" | "hair_accessories" | "other";
-  colors?: string;
-  sizes?: string;
   isFeatured?: boolean;
   isOnSale?: boolean;
   saleEndDate?: string;
@@ -55,6 +86,11 @@ type FormData = {
   sku?: string;
 };
 
+interface ColorTag {
+  name: string;
+  hex: string;
+}
+
 interface ProductFormProps {
   onSuccess?: () => void;
 }
@@ -62,6 +98,11 @@ interface ProductFormProps {
 export default function ProductForm({ onSuccess }: ProductFormProps) {
   const [uploading, setUploading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [colorTags, setColorTags] = useState<ColorTag[]>([]);
+  const [sizeTags, setSizeTags] = useState<string[]>([]);
+  const [colorInput, setColorInput] = useState("");
+  const [sizeInput, setSizeInput] = useState("");
+  const [showColorDropdown, setShowColorDropdown] = useState(false);
   const createProduct = useMutation(api.products.create);
   const generateUploadUrl = useMutation(api.products.generateUploadUrl);
 
@@ -74,8 +115,6 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
       compareAtPrice: "",
       category: "jewelry",
       jewelryType: "rings",
-      colors: "",
-      sizes: "",
       isFeatured: false,
       isOnSale: false,
       saleEndDate: "",
@@ -87,6 +126,44 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
 
   const imageFiles = watch("images");
   const isOnSale = watch("isOnSale");
+
+  // Filter color options based on input
+  const filteredColorOptions = COLOR_OPTIONS.filter(
+    color => color.name.toLowerCase().includes(colorInput.toLowerCase()) &&
+    !colorTags.some(tag => tag.name.toLowerCase() === color.name.toLowerCase())
+  );
+
+  const addColorTag = (colorName: string, hexCode?: string) => {
+    const hex = hexCode || getColorHex(colorName);
+    if (!colorTags.some(tag => tag.name.toLowerCase() === colorName.toLowerCase())) {
+      setColorTags([...colorTags, { name: colorName, hex }]);
+    }
+    setColorInput("");
+    setShowColorDropdown(false);
+  };
+
+  const removeColorTag = (index: number) => {
+    setColorTags(colorTags.filter((_, i) => i !== index));
+  };
+
+  const addSizeTag = () => {
+    const trimmed = sizeInput.trim();
+    if (trimmed && !sizeTags.includes(trimmed)) {
+      setSizeTags([...sizeTags, trimmed]);
+    }
+    setSizeInput("");
+  };
+
+  const removeSizeTag = (index: number) => {
+    setSizeTags(sizeTags.filter((_, i) => i !== index));
+  };
+
+  const handleSizeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSizeTag();
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -143,17 +220,9 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
         }
       }
 
-      const colors = (data.colors ?? "")
-        .split(",")
-        .map((c) => c.trim())
-        .filter((c) => c)
-        .map((name) => ({ name }));
+      const colors = colorTags.map(tag => ({ name: tag.name, hexCode: tag.hex }));
 
-      const sizes = (data.sizes ?? "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s)
-        .map((name) => ({ name }));
+      const sizes = sizeTags.map(name => ({ name }));
 
       await (createProduct as any)({
         name: data.name,
@@ -181,6 +250,8 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
       toast.success("Jewelry product created successfully!");
       reset();
       setImagePreviews([]);
+      setColorTags([]);
+      setSizeTags([]);
       onSuccess?.();
     } catch (error) {
       console.error(error);
@@ -334,22 +405,105 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="colors">Colors (Optional)</Label>
-              <Input
-                id="colors"
-                placeholder="e.g., Gold, Silver, Rose Gold"
-                {...register("colors")}
-                className="border-amber-100 focus:ring-amber-500"
-              />
+              <div className="relative">
+                <Input
+                  id="colors"
+                  placeholder="Type or select a color..."
+                  value={colorInput}
+                  onChange={(e) => {
+                    setColorInput(e.target.value);
+                    setShowColorDropdown(true);
+                  }}
+                  onFocus={() => setShowColorDropdown(true)}
+                  className="border-amber-100 focus:ring-amber-500"
+                />
+                {/* Color Dropdown */}
+                {showColorDropdown && filteredColorOptions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {filteredColorOptions.slice(0, 8).map((color) => (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => addColorTag(color.name, color.hex)}
+                        className="w-full px-3 py-2 text-left hover:bg-amber-50 flex items-center gap-2"
+                      >
+                        <span
+                          className="w-4 h-4 rounded-full border border-gray-300"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span className="text-sm">{color.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Color Tags */}
+              {colorTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {colorTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                    >
+                      <span
+                        className="w-3 h-3 rounded-full border border-gray-300"
+                        style={{ backgroundColor: tag.hex }}
+                      />
+                      {tag.name}
+                      <button
+                        type="button"
+                        onClick={() => removeColorTag(index)}
+                        className="ml-0.5 hover:text-red-500 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="sizes">Sizes (Optional)</Label>
-              <Input
-                id="sizes"
-                placeholder="e.g., Small, Medium, Large"
-                {...register("sizes")}
-                className="border-amber-100 focus:ring-amber-500"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="sizes"
+                  placeholder="e.g., Small, Medium, Large"
+                  value={sizeInput}
+                  onChange={(e) => setSizeInput(e.target.value)}
+                  onKeyDown={handleSizeKeyDown}
+                  className="border-amber-100 focus:ring-amber-500"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={addSizeTag}
+                  className="shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Size Tags */}
+              {sizeTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {sizeTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeSizeTag(index)}
+                        className="ml-0.5 hover:text-red-500 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -19,7 +19,47 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Upload, Sparkles, Tag, DollarSign, FileText, Image as ImageIcon, Trash2, ShieldCheck, Layers } from "lucide-react";
+import { Upload, Sparkles, Tag, DollarSign, FileText, Image as ImageIcon, Trash2, ShieldCheck, Layers, X, Plus } from "lucide-react";
+
+// Common color options with hex codes
+const COLOR_OPTIONS = [
+  { name: "Gold", hex: "#FFD700" },
+  { name: "Silver", hex: "#C0C0C0" },
+  { name: "Rose Gold", hex: "#B76E79" },
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#FF0000" },
+  { name: "Blue", hex: "#0000FF" },
+  { name: "Green", hex: "#008000" },
+  { name: "Pink", hex: "#FFC0CB" },
+  { name: "Purple", hex: "#800080" },
+  { name: "Orange", hex: "#FFA500" },
+  { name: "Yellow", hex: "#FFFF00" },
+  { name: "Bronze", hex: "#CD7F32" },
+  { name: "Copper", hex: "#B87333" },
+  { name: "Platinum", hex: "#E5E4E2" },
+  { name: "Pearl", hex: "#F0EAD6" },
+  { name: "Champagne", hex: "#F7E7CE" },
+  { name: "Navy", hex: "#000080" },
+  { name: "Burgundy", hex: "#800020" },
+  { name: "Teal", hex: "#008080" },
+  { name: "Ivory", hex: "#FFFFF0" },
+  { name: "Beige", hex: "#F5F5DC" },
+  { name: "Brown", hex: "#8B4513" },
+  { name: "Gray", hex: "#808080" },
+  { name: "Clear", hex: "#E0E0E0" },
+];
+
+// Helper function to get hex code for a color name
+const getColorHex = (colorName: string): string => {
+  const color = COLOR_OPTIONS.find(c => c.name.toLowerCase() === colorName.toLowerCase());
+  return color?.hex || "#CCCCCC";
+};
+
+interface ColorTag {
+  name: string;
+  hex: string;
+}
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -36,7 +76,6 @@ const formSchema = z.object({
   images: z.array(z.instanceof(File)).optional(),
   stockQuantity: z.string().min(1, "Quantity is required"),
   sku: z.string().optional(),
-  color: z.string().optional(),
   isFeatured: z.boolean(),
   isNew: z.boolean(),
   isOnSale: z.boolean(),
@@ -52,7 +91,6 @@ type FormData = {
   images?: File[];
   stockQuantity: string;
   sku?: string;
-  color?: string;
   isFeatured: boolean;
   isNew: boolean;
   isOnSale: boolean;
@@ -65,6 +103,9 @@ interface HiringItemFormProps {
 export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
   const [uploading, setUploading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [colorTags, setColorTags] = useState<ColorTag[]>([]);
+  const [colorInput, setColorInput] = useState("");
+  const [showColorDropdown, setShowColorDropdown] = useState(false);
   const createProduct = useMutation(api.products.create);
   const generateUploadUrl = useMutation(api.products.generateUploadUrl);
 
@@ -83,11 +124,29 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
       images: [],
       stockQuantity: "1",
       sku: "",
-      color: "",
     },
   });
 
   const imageFiles = watch("images");
+
+  // Filter color options based on input
+  const filteredColorOptions = COLOR_OPTIONS.filter(
+    color => color.name.toLowerCase().includes(colorInput.toLowerCase()) &&
+    !colorTags.some(tag => tag.name.toLowerCase() === color.name.toLowerCase())
+  );
+
+  const addColorTag = (colorName: string, hexCode?: string) => {
+    const hex = hexCode || getColorHex(colorName);
+    if (!colorTags.some(tag => tag.name.toLowerCase() === colorName.toLowerCase())) {
+      setColorTags([...colorTags, { name: colorName, hex }]);
+    }
+    setColorInput("");
+    setShowColorDropdown(false);
+  };
+
+  const removeColorTag = (index: number) => {
+    setColorTags(colorTags.filter((_, i) => i !== index));
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
@@ -156,7 +215,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
         images: uploadedImages.length > 0 ? uploadedImages : undefined,
         imageStorageId: uploadedImages.length > 0 ? uploadedImages[0].storageId : undefined,
         stockQuantity: parseInt(data.stockQuantity),
-        colors: data.color ? [{ name: data.color }] : undefined,
+        colors: colorTags.length > 0 ? colorTags.map(tag => ({ name: tag.name, hexCode: tag.hex })) : undefined,
         sku: data.sku,
         isForHire: true,
         hirePrice: parseFloat(data.hirePrice),
@@ -167,6 +226,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
       toast.success("Hiring item created successfully!");
       reset();
       setImagePreviews([]);
+      setColorTags([]);
       onSuccess?.();
     } catch (error) {
       console.error(error);
@@ -251,13 +311,63 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="color">Color (Optional)</Label>
-              <Input
-                id="color"
-                placeholder="e.g., Gold, White"
-                {...register("color")}
-                className="border-purple-100 focus:ring-purple-500"
-              />
+              <Label htmlFor="color">Colors (Optional)</Label>
+              <div className="relative">
+                <Input
+                  id="color"
+                  placeholder="Type or select a color..."
+                  value={colorInput}
+                  onChange={(e) => {
+                    setColorInput(e.target.value);
+                    setShowColorDropdown(true);
+                  }}
+                  onFocus={() => setShowColorDropdown(true)}
+                  className="border-purple-100 focus:ring-purple-500"
+                />
+                {/* Color Dropdown */}
+                {showColorDropdown && filteredColorOptions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {filteredColorOptions.slice(0, 8).map((color) => (
+                      <button
+                        key={color.name}
+                        type="button"
+                        onClick={() => addColorTag(color.name, color.hex)}
+                        className="w-full px-3 py-2 text-left hover:bg-purple-50 flex items-center gap-2"
+                      >
+                        <span
+                          className="w-4 h-4 rounded-full border border-gray-300"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                        <span className="text-sm">{color.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Color Tags */}
+              {colorTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {colorTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"
+                    >
+                      <span
+                        className="w-3 h-3 rounded-full border border-gray-300"
+                        style={{ backgroundColor: tag.hex }}
+                      />
+                      {tag.name}
+                      <button
+                        type="button"
+                        onClick={() => removeColorTag(index)}
+                        className="ml-0.5 hover:text-red-500 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
