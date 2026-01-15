@@ -129,7 +129,7 @@ export default function CategoriesPage() {
       <Card className="border-amber-100 shadow-sm">
         <CardHeader>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+            <TabsList className="grid w-full grid-cols-2 max-w-100">
               <TabsTrigger value="jewelry">Jewelry Categories</TabsTrigger>
               <TabsTrigger value="decor">Rental (Decor) Categories</TabsTrigger>
             </TabsList>

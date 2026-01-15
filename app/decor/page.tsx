@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ProductCard from "@/components/ProductCard";
@@ -52,6 +52,15 @@ export default function DecorPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [gridCols, setGridCols] = useState(4);
   const [visibleCount, setVisibleCount] = useState(12);
+  const productsSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleCategoryClick = (categoryValue: string) => {
+    setSelectedCategory(categoryValue);
+    // Scroll to products section after a brief delay for state update
+    setTimeout(() => {
+      productsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
 
   const products = useQuery(api.products.get, {
     category: "decor",
@@ -129,7 +138,7 @@ export default function DecorPage() {
               {DECOR_CATEGORIES.map((category) => (
                 <button
                   key={category.value}
-                  onClick={() => setSelectedCategory(category.value)}
+                  onClick={() => handleCategoryClick(category.value)}
                   className={`group relative w-40 h-27.5 mx-2 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg shrink-0 ${
                     selectedCategory === category.value
                       ? "ring-2 ring-primary ring-offset-2"
@@ -252,7 +261,7 @@ export default function DecorPage() {
         )}
 
         {/* Results Count */}
-        <div className="flex items-center justify-between mb-6">
+        <div ref={productsSectionRef} className="flex items-center justify-between mb-6 scroll-mt-4">
           <p className="text-sm text-muted-foreground">
             Showing{" "}
             <span className="font-medium text-foreground">

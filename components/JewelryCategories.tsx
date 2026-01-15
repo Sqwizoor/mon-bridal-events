@@ -68,9 +68,9 @@ export default function JewelryCategories() {
             <Link
               key={cat.slug}
               href={`/jewelry?type=${cat.slug}`}
-              className="group flex flex-col items-center gap-3 min-w-[80px] snap-start"
+              className="group flex flex-col items-center gap-3 min-w-20 snap-start"
             >
-              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full p-[2px] bg-linear-to-tr from-amber-200 via-yellow-400 to-amber-600 bg-[length:400%_400%] animate-gradient-xy group-hover:scale-110 transition-transform duration-300">
+              <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full p-0.5 bg-linear-to-tr from-amber-200 via-yellow-400 to-amber-600 bg-size-[400%_400%] animate-gradient-xy group-hover:scale-110 transition-transform duration-300">
                 <div className="w-full h-full rounded-full overflow-hidden border-2 border-white relative bg-gray-100">
                   <img
                     src={cat.image}

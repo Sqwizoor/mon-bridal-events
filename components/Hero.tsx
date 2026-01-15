@@ -22,7 +22,7 @@ export function HeroSection() {
      
 
       {/* Hero Content - Centered */}
-      <div className="relative md:mt-[-2rem] z-10 flex h-full md:min-h-[calc(100vh-88px-60px)] flex-col items-center justify-center px-6 text-center md:px-12 lg:px-20">
+      <div className="relative md:-mt-8 z-10 flex h-full md:min-h-[calc(100vh-88px-60px)] flex-col items-center justify-center px-6 text-center md:px-12 lg:px-20">
         <div className="mx-auto max-w-4xl">
           {/* Badge */}
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm text-white backdrop-blur-sm">
@@ -31,7 +31,7 @@ export function HeroSection() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-script text-4xl md:text-6xl lg:text-6xl leading-[1.05] tracking-tight text-amber-100/90 md:text-7xl lg:text-8xl">
+          <h1 className="font-script text-4xl md:text-6xl lg:text-6xl leading-[1.05] tracking-tight text-amber-100/90">
            Luxury Jewelry &  Event 
             <br />
             <span className="font-script font-normal text-4xl md:text-6xl lg:text-6xl text-amber-100/90 block mt-2">Décor Available For Rent</span>

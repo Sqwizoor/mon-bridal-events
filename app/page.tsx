@@ -44,7 +44,7 @@ export default function Home() {
 
       {/* Featured Products */}
       {featuredProducts && featuredProducts.length > 0 && (
-        <section className="pt-10 pb-10 md:pb-20 bg-linear-to-b from-gray-50 to-white">
+        <section className="pt-8 pb-8 md:pt-12 md:pb-12 bg-linear-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
               <div>
@@ -69,17 +69,10 @@ export default function Home() {
               </Button>
             </div>
             {/* Mobile Marquee View */}
-            <div className="md:hidden flex flex-col gap-6">
-              <Marquee pauseOnHover className="[--duration:30s]">
-                {featuredProducts.slice(0, Math.ceil(featuredProducts.length / 2)).map((product: any) => (
+            <div className="md:hidden">
+              <Marquee pauseOnHover className="[--duration:40s]">
+                {featuredProducts.map((product: any) => (
                   <div key={product._id} className="w-42.5">
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </Marquee>
-              <Marquee reverse pauseOnHover className="[--duration:30s]">
-                {featuredProducts.slice(Math.ceil(featuredProducts.length / 2)).map((product: any) => (
-                  <div key={product._id} className="w-[170px]">
                     <ProductCard product={product} />
                   </div>
                 ))}
@@ -100,7 +93,7 @@ export default function Home() {
                   onClick={() => setVisibleCount(prev => prev + 8)} 
                   variant="outline"
                   size="lg"
-                  className="px-8 min-w-[200px]"
+                  className="px-8 min-w-50"
                 >
                   Load More Products
                 </Button>
@@ -111,9 +104,9 @@ export default function Home() {
       )}
 
       {/* Categories Grid */}
-      <section className="py-10 md:py-20 container mx-auto px-4 md:px-6">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-4">
+      <section className="py-8 md:py-12 container mx-auto px-4 md:px-6">
+        <div className="text-center mb-6 md:mb-8">
+          <h2 className="font-serif text-3xl md:text-4xl font-bold mb-3">
             Shop by Category
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
@@ -122,7 +115,7 @@ export default function Home() {
         </div>
         <div className="grid md:grid-cols-2 gap-8">
           {/* Jewelry Card */}
-          <Link href="/jewelry" className="group relative overflow-hidden rounded-2xl aspect-[2/1] bg-muted block">
+          <Link href="/jewelry" className="group relative overflow-hidden rounded-2xl aspect-2/1 bg-muted block">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 transition-colors" />
             <div className="absolute inset-0 flex flex-col justify-end p-8 text-white">
@@ -166,7 +159,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section className="py-20 bg-stone-50">
+      <section className="py-10 md:py-14 bg-stone-50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Text Side */}
@@ -206,9 +199,9 @@ export default function Home() {
 
       {/* New Jewelry */}
       {newJewelry && newJewelry.length > 0 && (
-        <section className="py-20 bg-white">
+        <section className="py-10 md:py-14 bg-white">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
                 <Badge variant="outline" className="mb-4 border-amber-200 bg-amber-50 text-amber-700">
                   <Sparkles className="h-3 w-3 mr-1 text-amber-500" />
@@ -240,7 +233,7 @@ export default function Home() {
       )}
 
       {/* How It Works - Decor Hire */}
-      <section className="py-24 bg-gradient-to-br from-amber-50/50 to-orange-50/50 relative overflow-hidden">
+      <section className="py-12 md:py-16 bg-linear-to-br from-amber-50/50 to-orange-50/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-100/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         
@@ -324,9 +317,9 @@ export default function Home() {
 
       {/* Popular Decor */}
       {popularDecor && popularDecor.length > 0 && (
-        <section className="py-20">
+        <section className="py-10 md:py-14">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
               <div>
                 <Badge variant="outline" className="mb-4">Popular Items</Badge>
                 <h2 className="font-serif text-3xl md:text-4xl font-bold">
@@ -355,7 +348,7 @@ export default function Home() {
       )}
 
       {/* Trust Badges */}
-      <section className="py-16 bg-gray-50 border-t">
+      <section className="py-10 md:py-12 bg-gray-50 border-t">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">

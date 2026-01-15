@@ -204,7 +204,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
                 id="description"
                 placeholder="Describe the item's style and condition..."
                 {...register("description")}
-                className="border-purple-100 focus:ring-purple-500 min-h-[120px]"
+                className="border-purple-100 focus:ring-purple-500 min-h-30"
               />
               {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
             </div>
@@ -217,7 +217,7 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
                 <SelectTrigger className="border-purple-100">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
+                <SelectContent className="max-h-75">
                   <SelectItem value="candle_holders">Candle Holders</SelectItem>
                   <SelectItem value="vases">Vases</SelectItem>
                   <SelectItem value="table_linen">Table Linen</SelectItem>

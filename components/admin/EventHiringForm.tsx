@@ -251,7 +251,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
               onChange={(e) =>
                 setFormData({ ...formData, message: e.target.value })
               }
-              className="border-purple-100 focus:ring-purple-500 min-h-[80px]"
+              className="border-purple-100 focus:ring-purple-500 min-h-20"
             />
           </div>
         </div>
@@ -273,7 +273,7 @@ export default function EventHiringForm({ onSuccess }: EventHiringFormProps) {
                   <SelectTrigger className="h-11 border-purple-100 bg-white cursor-pointer">
                     <SelectValue placeholder="Choose a decor item..." />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
+                  <SelectContent className="max-h-75">
                     {products?.filter(p => p.category === "decor").map((product: any) => (
                       <SelectItem key={product._id} value={product._id} className="cursor-pointer">
                         {product.name} (R{product.hirePrice || 0}/day)

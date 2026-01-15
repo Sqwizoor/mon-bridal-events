@@ -218,7 +218,7 @@ export default function ProductForm({ onSuccess }: ProductFormProps) {
                 id="description"
                 placeholder="Crafted with elegance..."
                 {...register("description")}
-                className="border-amber-100 focus:ring-amber-500 min-h-[120px]"
+                className="border-amber-100 focus:ring-amber-500 min-h-30"
               />
               {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
             </div>
