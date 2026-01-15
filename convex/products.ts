@@ -98,11 +98,17 @@ export const get = query({
     const productsWithImages = await Promise.all(
       products.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-        } else if (product.images && product.images.length > 0) {
-          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
-          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        try {
+          if (product.imageStorageId) {
+            imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+          } else if (Array.isArray(product.images) && product.images.length > 0) {
+            const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+            if (primaryImage && primaryImage.storageId) {
+              imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+            }
+          }
+        } catch (error) {
+          console.error("Error generating image URL for product", product._id, error);
         }
         return { ...product, imageUrl };
       })
@@ -167,7 +173,7 @@ export const getPaginated = query({
         try {
             if (product.imageStorageId) {
               imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-            } else if (product.images && product.images.length > 0) {
+            } else if (Array.isArray(product.images) && product.images.length > 0) {
               const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
               if (primaryImage && primaryImage.storageId) {
                 imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
@@ -204,7 +210,7 @@ export const getFeaturedPaginated = query({
         try {
             if (product.imageStorageId) {
               imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-            } else if (product.images && product.images.length > 0) {
+            } else if (Array.isArray(product.images) && product.images.length > 0) {
               const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
               if (primaryImage && primaryImage.storageId) {
                 imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
@@ -231,21 +237,29 @@ export const getById = query({
     let imageUrl = null;
     let allImageUrls: string[] = [];
 
-    if (product.imageStorageId) {
-      imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-    }
-
-    if (product.images && product.images.length > 0) {
-      allImageUrls = await Promise.all(
-        product.images.map(async (img) => {
-          const url = await ctx.storage.getUrl(img.storageId);
-          return url || "";
-        })
-      );
-      if (!imageUrl) {
-        const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
-        imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+    try {
+      if (product.imageStorageId) {
+        imageUrl = await ctx.storage.getUrl(product.imageStorageId);
       }
+
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        allImageUrls = await Promise.all(
+          product.images.map(async (img) => {
+            if (img.storageId) {
+                return await ctx.storage.getUrl(img.storageId) || "";
+            }
+            return "";
+          })
+        );
+        if (!imageUrl) {
+          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+          if (primaryImage && primaryImage.storageId) {
+            imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching image for product", product._id, e);
     }
 
     return { ...product, imageUrl, allImageUrls };
@@ -264,8 +278,18 @@ export const getBySlug = query({
     if (!product) return null;
 
     let imageUrl = null;
-    if (product.imageStorageId) {
-      imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+    try {
+        if (product.imageStorageId) {
+          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+        } else if (Array.isArray(product.images) && product.images.length > 0) {
+            // Fallback to first image if legacy/primary image missing
+             const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+             if (primaryImage && primaryImage.storageId) {
+                 imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+             }
+        }
+    } catch (e) {
+        console.error("Error fetching image for product slug", args.slug, e);
     }
 
     return { ...product, imageUrl };
@@ -289,12 +313,18 @@ export const search = query({
     const productsWithImages = await Promise.all(
       products.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
-        } else if (product.images && product.images.length > 0) {
-          const primaryImage =
-            product.images.find((img) => img.isPrimary) ?? product.images[0];
-          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        try {
+            if (product.imageStorageId) {
+              imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+            } else if (Array.isArray(product.images) && product.images.length > 0) {
+              const primaryImage =
+                product.images.find((img) => img.isPrimary) ?? product.images[0];
+              if (primaryImage && primaryImage.storageId) {
+                  imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+              }
+            }
+        } catch (e) {
+            console.error("Error image search", product._id, e);
         }
         return { ...product, imageUrl };
       })
@@ -321,8 +351,12 @@ export const getFeatured = query({
     const productsWithImages = await Promise.all(
       products.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+        try {
+            if (product.imageStorageId) {
+              imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+            }
+        } catch (e) {
+             console.error("Error image featured", product._id, e);
         }
         return { ...product, imageUrl };
       })
@@ -349,8 +383,12 @@ export const getByDecorType = query({
     const productsWithImages = await Promise.all(
       products.map(async (product) => {
         let imageUrl = null;
-        if (product.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+        try {
+            if (product.imageStorageId) {
+              imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+            }
+        } catch (e) {
+            console.error("Error image decor type", product._id, e);
         }
         return { ...product, imageUrl };
       })
