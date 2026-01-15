@@ -13,17 +13,43 @@ export const create = mutation({
   handler: async (ctx, args) => {
     try {
       const identity = await ctx.auth.getUserIdentity();
+      console.log("Review create - identity:", identity ? { subject: identity.subject, email: identity.email } : null);
+      
       if (!identity) {
         throw new Error("You must be logged in to leave a review");
       }
 
-      const user = await ctx.db
+      // Try both tokenIdentifier patterns (Clerk uses subject, some setups use tokenIdentifier)
+      let user = await ctx.db
         .query("users")
         .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.subject))
         .first();
+      
+      // If not found with subject, try with the full tokenIdentifier if available
+      if (!user && identity.tokenIdentifier) {
+        user = await ctx.db
+          .query("users")
+          .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
+          .first();
+      }
+
+      console.log("Review create - user found:", user ? { id: user._id, name: user.name } : null);
 
       if (!user) {
-        throw new Error("User not found. Please try logging out and back in.");
+        // Auto-create user if not exists
+        console.log("Review create - creating new user");
+        const userId = await ctx.db.insert("users", {
+          tokenIdentifier: identity.subject,
+          name: identity.name || "User",
+          email: identity.email || "",
+          role: "customer",
+          createdAt: Date.now(),
+        });
+        user = await ctx.db.get(userId);
+      }
+
+      if (!user) {
+        throw new Error("Failed to create or find user");
       }
 
       // Check if product exists
@@ -36,7 +62,7 @@ export const create = mutation({
       const existingReview = await ctx.db
         .query("reviews")
         .withIndex("by_product", (q) => q.eq("productId", args.productId))
-        .filter((q) => q.eq(q.field("userId"), user._id))
+        .filter((q) => q.eq(q.field("userId"), user!._id))
         .first();
 
       if (existingReview) {

@@ -29,6 +29,41 @@ import { Star } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 
+// Color name to hex code mapping for fallback
+const COLOR_MAP: Record<string, string> = {
+  gold: "#FFD700",
+  silver: "#C0C0C0",
+  "rose gold": "#B76E79",
+  black: "#000000",
+  white: "#FFFFFF",
+  red: "#FF0000",
+  blue: "#0000FF",
+  green: "#008000",
+  pink: "#FFC0CB",
+  purple: "#800080",
+  orange: "#FFA500",
+  yellow: "#FFFF00",
+  bronze: "#CD7F32",
+  copper: "#B87333",
+  platinum: "#E5E4E2",
+  pearl: "#F0EAD6",
+  champagne: "#F7E7CE",
+  navy: "#000080",
+  burgundy: "#800020",
+  teal: "#008080",
+  ivory: "#FFFFF0",
+  beige: "#F5F5DC",
+  brown: "#8B4513",
+  gray: "#808080",
+  grey: "#808080",
+  clear: "#E0E0E0",
+};
+
+const getColorHex = (colorName: string, hexCode?: string): string => {
+  if (hexCode) return hexCode;
+  return COLOR_MAP[colorName.toLowerCase()] || "#CCCCCC";
+};
+
 export default function ProductPage() {
   const params = useParams();
   const productId = params.id as string;
@@ -306,7 +341,7 @@ export default function ProductPage() {
                     >
                       <span
                         className="w-5 h-5 rounded-full border border-gray-300 shrink-0"
-                        style={{ backgroundColor: color.hexCode || "#ccc" }}
+                        style={{ backgroundColor: getColorHex(color.name, color.hexCode) }}
                       />
                       <span className="text-sm font-medium">{color.name}</span>
                       {selectedColor === color.name && (
