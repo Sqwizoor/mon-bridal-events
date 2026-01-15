@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "convex/react";
+import { useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ProductCard from "@/components/ProductCard";
 import Marquee from "@/components/ui/marquee";
@@ -22,7 +22,11 @@ import {
 import { HeroSection } from "@/components/Hero";
 
 export default function Home() {
-  const featuredProducts = useQuery(api.products.getFeatured, { limit: 8 });
+  const { results: featuredProducts, status, loadMore } = usePaginatedQuery(
+    api.products.getFeaturedPaginated,
+    {},
+    { initialNumItems: 8 }
+  );
   const newJewelry = useQuery(api.products.get, {
     category: "jewelry",
     isActive: true,
@@ -89,6 +93,20 @@ export default function Home() {
               {featuredProducts.map((product: any) => (
                 <ProductCard key={product._id} product={product} />
               ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-8 flex justify-center w-full">
+              {status === "CanLoadMore" && (
+                <Button 
+                  onClick={() => loadMore(8)} 
+                  variant="outline"
+                  size="lg"
+                  className="px-8 min-w-[200px]"
+                >
+                  Load More Products
+                </Button>
+              )}
             </div>
           </div>
         </section>

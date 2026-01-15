@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { paginationOptsValidator } from "convex/server";
 
 // Helper to generate slug from name
 function generateSlug(name: string): string {
@@ -112,6 +113,99 @@ export const get = query({
     }
 
     return productsWithImages;
+  },
+});
+
+// Get products with pagination
+export const getPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    category: v.optional(v.string()),
+    decorType: v.optional(v.string()),
+    jewelryType: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    isFeatured: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    let productsQuery = ctx.db.query("products");
+
+    if (args.category) {
+      productsQuery = productsQuery.filter((q) =>
+        q.eq(q.field("category"), args.category)
+      );
+    }
+
+    if (args.decorType) {
+      productsQuery = productsQuery.filter((q) =>
+        q.eq(q.field("decorType"), args.decorType)
+      );
+    }
+
+    if (args.jewelryType) {
+      productsQuery = productsQuery.filter((q) =>
+        q.eq(q.field("jewelryType"), args.jewelryType)
+      );
+    }
+
+    if (args.isActive !== undefined) {
+      productsQuery = productsQuery.filter((q) =>
+        q.eq(q.field("isActive"), args.isActive)
+      );
+    }
+
+    if (args.isFeatured !== undefined) {
+      productsQuery = productsQuery.filter((q) =>
+        q.eq(q.field("isFeatured"), args.isFeatured)
+      );
+    }
+
+    const { page, isDone, continueCursor } = await productsQuery.paginate(args.paginationOpts);
+
+    const productsWithImages = await Promise.all(
+      page.map(async (product) => {
+        let imageUrl = null;
+        if (product.imageStorageId) {
+          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+        } else if (product.images && product.images.length > 0) {
+          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        }
+        return { ...product, imageUrl };
+      })
+    );
+
+    return { page: productsWithImages, isDone, continueCursor };
+  },
+});
+
+// Get featured products with pagination
+export const getFeaturedPaginated = query({
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    const products = await ctx.db
+      .query("products")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("isFeatured"), true),
+          q.eq(q.field("isActive"), true)
+        )
+      )
+      .paginate(args.paginationOpts);
+
+    const productsWithImages = await Promise.all(
+      products.page.map(async (product) => {
+        let imageUrl = null;
+        if (product.imageStorageId) {
+          imageUrl = await ctx.storage.getUrl(product.imageStorageId);
+        } else if (product.images && product.images.length > 0) {
+          const primaryImage = product.images.find((img) => img.isPrimary) || product.images[0];
+          imageUrl = await ctx.storage.getUrl(primaryImage.storageId);
+        }
+        return { ...product, imageUrl };
+      })
+    );
+
+    return { ...products, page: productsWithImages };
   },
 });
 

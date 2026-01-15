@@ -247,6 +247,8 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
                 placeholder="EV-001"
                 {...register("sku")}
                 className="border-purple-100 focus:ring-purple-500"
+              />
+            </div>
             
             <div className="space-y-2">
               <Label htmlFor="color">Color (Optional)</Label>
@@ -255,8 +257,6 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
                 placeholder="e.g., Gold, White"
                 {...register("color")}
                 className="border-purple-100 focus:ring-purple-500"
-              />
-            </div>
               />
             </div>
           </div>

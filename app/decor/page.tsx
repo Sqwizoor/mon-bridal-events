@@ -51,6 +51,7 @@ export default function DecorPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [gridCols, setGridCols] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const products = useQuery(api.products.get, {
     category: "decor",
@@ -290,11 +291,25 @@ export default function DecorPage() {
             </Button>
           </div>
         ) : (
-          <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-${gridCols} gap-4 md:gap-6`}>
-            {filteredProducts?.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-${gridCols} gap-4 md:gap-6`}>
+              {filteredProducts?.slice(0, visibleCount).map((product: any) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+
+            {filteredProducts && filteredProducts.length > visibleCount && (
+              <div className="mt-12 flex justify-center">
+                <Button 
+                  onClick={() => setVisibleCount(prev => prev + 12)}
+                  variant="outline"
+                  className="px-8 min-w-[200px]"
+                >
+                  Load More
+                </Button>
+              </div>
+            )}
+          </>
         )}
 
         {/* How It Works Section */}
