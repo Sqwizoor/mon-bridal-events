@@ -233,12 +233,12 @@ export default function Home() {
       )}
 
       {/* How It Works - Decor Hire */}
-      <section className="py-12 md:py-16 bg-linear-to-br from-amber-50/50 to-orange-50/50 relative overflow-hidden">
+      <section className="py-8 md:py-10 bg-linear-to-br from-amber-50/50 to-orange-50/50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-100/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         
         <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="text-center mb-16 space-y-4">
+          <div className="text-center mb-10 space-y-4">
             <Badge variant="outline" className="bg-white/50 backdrop-blur-sm border-amber-200 text-amber-800">
               Simple Process
             </Badge>

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Star, User } from "lucide-react";
+import { Star, User, Pencil, Trash2, X, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
@@ -19,13 +19,74 @@ interface ProductReviewsProps {
 
 export default function ProductReviews({ productId, productName }: ProductReviewsProps) {
   const reviews = useQuery(api.reviews.getByProduct, { productId });
+  const currentUser = useQuery(api.users.current);
   const createReview = useMutation(api.reviews.create);
+  const updateReview = useMutation(api.reviews.update);
+  const deleteReview = useMutation(api.reviews.remove);
   const { user, isLoaded, isSignedIn } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewContent, setReviewContent] = useState("");
   const [reviewTitle, setReviewTitle] = useState("");
+  
+  // Edit state
+  const [editingReviewId, setEditingReviewId] = useState<Id<"reviews"> | null>(null);
+  const [editRating, setEditRating] = useState(0);
+  const [editHoverRating, setEditHoverRating] = useState(0);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<Id<"reviews"> | null>(null);
+
+  const startEditing = (review: any) => {
+    setEditingReviewId(review._id);
+    setEditRating(review.rating);
+    setEditTitle(review.title || "");
+    setEditContent(review.content);
+  };
+
+  const cancelEditing = () => {
+    setEditingReviewId(null);
+    setEditRating(0);
+    setEditTitle("");
+    setEditContent("");
+  };
+
+  const handleUpdateReview = async (reviewId: Id<"reviews">) => {
+    if (editRating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    
+    setIsUpdating(true);
+    try {
+      await updateReview({
+        reviewId,
+        rating: editRating,
+        title: editTitle || undefined,
+        content: editContent,
+      });
+      toast.success("Review updated successfully!");
+      cancelEditing();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update review");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: Id<"reviews">) => {
+    setIsDeleting(reviewId);
+    try {
+      await deleteReview({ reviewId });
+      toast.success("Review deleted");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete review");
+    } finally {
+      setIsDeleting(null);
+    }
+  };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,45 +130,139 @@ export default function ProductReviews({ productId, productName }: ProductReview
               <p className="text-gray-500 mt-1">Be the first to review {productName}</p>
             </div>
           ) : (
-            reviews.map((review) => (
-              <div key={review._id} className="pb-8 border-b last:border-0">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border">
-                      <AvatarImage src={review.authorAvatar || undefined} />
-                      <AvatarFallback className="bg-purple-100 text-purple-700 font-bold">
-                        {review.authorName?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
-                      </AvatarFallback>
-                    </Avatar>
-                    
-                    <div>
-                      <div className="font-semibold text-gray-900">{review.authorName}</div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star 
-                              key={star} 
-                              className={`h-3 w-3 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
-                            />
-                          ))}
+            reviews.map((review) => {
+              const isOwner = currentUser && review.userId === currentUser._id;
+              const isEditing = editingReviewId === review._id;
+              
+              return (
+                <div key={review._id} className="pb-8 border-b last:border-0">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border">
+                        <AvatarImage src={review.authorAvatar || undefined} />
+                        <AvatarFallback className="bg-purple-100 text-purple-700 font-bold">
+                          {review.authorName?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          {review.authorName}
+                          {isOwner && <span className="text-xs text-amber-600 ml-2">(You)</span>}
                         </div>
-                        <span className="text-xs text-gray-500">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </span>
+                        {!isEditing && (
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star 
+                                  key={star} 
+                                  className={`h-3 w-3 ${star <= review.rating ? 'fill-amber-400 text-amber-400' : 'fill-gray-200 text-gray-200'}`} 
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
+                    
+                    {/* Edit/Delete buttons for owner */}
+                    {isOwner && !isEditing && (
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-amber-600"
+                          onClick={() => startEditing(review)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-500 hover:text-red-600"
+                          onClick={() => handleDeleteReview(review._id)}
+                          disabled={isDeleting === review._id}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                {review.title && (
-                  <h4 className="font-bold text-gray-900 mb-2 text-sm">{review.title}</h4>
-                )}
-                
-                <p className="text-gray-600 leading-relaxed text-sm">
-                  {review.content}
-                </p>
-              </div>
-            ))
+                  {isEditing ? (
+                    /* Edit Mode */
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Rating</label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              className="focus:outline-none transition-transform hover:scale-110"
+                              onMouseEnter={() => setEditHoverRating(star)}
+                              onMouseLeave={() => setEditHoverRating(0)}
+                              onClick={() => setEditRating(star)}
+                            >
+                              <Star 
+                                className={`h-5 w-5 ${
+                                  star <= (editHoverRating || editRating) 
+                                    ? 'fill-amber-400 text-amber-400' 
+                                    : 'fill-transparent text-gray-300'
+                                }`} 
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <Input
+                        placeholder="Title (optional)"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="bg-white text-sm"
+                      />
+                      <Textarea
+                        placeholder="Your review..."
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="bg-white text-sm min-h-20"
+                        required
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateReview(review._id)}
+                          disabled={isUpdating || editRating === 0}
+                        >
+                          {isUpdating ? "Saving..." : <><Check className="h-4 w-4 mr-1" /> Save</>}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={cancelEditing}
+                        >
+                          <X className="h-4 w-4 mr-1" /> Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* View Mode */
+                    <>
+                      {review.title && (
+                        <h4 className="font-bold text-gray-900 mb-2 text-sm">{review.title}</h4>
+                      )}
+                      
+                      <p className="text-gray-600 leading-relaxed text-sm">
+                        {review.content}
+                      </p>
+                    </>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
 

@@ -185,3 +185,139 @@ export const getByProduct = query({
     }
   },
 });
+
+// Update a review (only the owner can update)
+export const update = mutation({
+  args: {
+    reviewId: v.id("reviews"),
+    rating: v.number(),
+    title: v.optional(v.string()),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("You must be logged in to edit a review");
+    }
+
+    // Get the review
+    const review = await ctx.db.get(args.reviewId);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    // Get the user
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.subject))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if this user owns the review
+    if (review.userId !== user._id) {
+      throw new Error("You can only edit your own reviews");
+    }
+
+    // Validate rating
+    if (args.rating < 1 || args.rating > 5) {
+      throw new Error("Rating must be between 1 and 5");
+    }
+
+    const oldRating = review.rating;
+
+    // Update the review
+    await ctx.db.patch(args.reviewId, {
+      rating: args.rating,
+      title: args.title || undefined,
+      content: args.content.trim(),
+    });
+
+    // Recalculate product rating if rating changed
+    if (oldRating !== args.rating) {
+      const productReviews = await ctx.db
+        .query("reviews")
+        .withIndex("by_product", (q) => q.eq("productId", review.productId))
+        .collect();
+      
+      const totalRating = productReviews.reduce((sum, r) => {
+        // Use new rating for the updated review
+        return sum + (r._id === args.reviewId ? args.rating : r.rating);
+      }, 0);
+      const avgRating = totalRating / productReviews.length;
+
+      try {
+        await ctx.db.patch(review.productId, {
+          rating: avgRating,
+        });
+      } catch (e) {
+        console.error("Failed to update product rating:", e);
+      }
+    }
+
+    return { success: true };
+  },
+});
+
+// Delete a review (only the owner can delete)
+export const remove = mutation({
+  args: {
+    reviewId: v.id("reviews"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("You must be logged in to delete a review");
+    }
+
+    // Get the review
+    const review = await ctx.db.get(args.reviewId);
+    if (!review) {
+      throw new Error("Review not found");
+    }
+
+    // Get the user
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.subject))
+      .first();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if this user owns the review
+    if (review.userId !== user._id) {
+      throw new Error("You can only delete your own reviews");
+    }
+
+    const productId = review.productId;
+
+    // Delete the review
+    await ctx.db.delete(args.reviewId);
+
+    // Recalculate product rating
+    const remainingReviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_product", (q) => q.eq("productId", productId))
+      .collect();
+
+    const newCount = remainingReviews.length;
+    const newAvg = newCount > 0 
+      ? remainingReviews.reduce((sum, r) => sum + r.rating, 0) / newCount 
+      : 0;
+
+    try {
+      await ctx.db.patch(productId, {
+        rating: newAvg,
+        reviewCount: newCount,
+      });
+    } catch (e) {
+      console.error("Failed to update product rating:", e);
+    }
+
+    return { success: true };
+  },
+});
