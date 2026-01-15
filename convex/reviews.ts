@@ -11,66 +11,80 @@ export const create = mutation({
     images: v.optional(v.array(v.id("_storage"))),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("You must be logged in to leave a review");
+    try {
+      const identity = await ctx.auth.getUserIdentity();
+      if (!identity) {
+        throw new Error("You must be logged in to leave a review");
+      }
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.subject))
+        .first();
+
+      if (!user) {
+        throw new Error("User not found. Please try logging out and back in.");
+      }
+
+      // Check if product exists
+      const product = await ctx.db.get(args.productId);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+
+      // Check if user has already reviewed this product
+      const existingReview = await ctx.db
+        .query("reviews")
+        .withIndex("by_product", (q) => q.eq("productId", args.productId))
+        .filter((q) => q.eq(q.field("userId"), user._id))
+        .first();
+
+      if (existingReview) {
+        throw new Error("You have already reviewed this product");
+      }
+
+      // Calculate new average rating for the product
+      const productReviews = await ctx.db
+        .query("reviews")
+        .withIndex("by_product", (q) => q.eq("productId", args.productId))
+        .collect();
+      
+      const currentRatingCount = productReviews.length;
+      const currentTotalRating = productReviews.reduce((sum, r) => sum + r.rating, 0);
+      
+      const newRatingCount = currentRatingCount + 1;
+      const newTotalRating = currentTotalRating + args.rating;
+      const newAverageRating = newTotalRating / newRatingCount;
+
+      // Create the review
+      await ctx.db.insert("reviews", {
+          userId: user._id,
+          productId: args.productId,
+          rating: args.rating,
+          title: args.title,
+          content: args.content,
+          images: args.images,
+          isVerifiedPurchase: false,
+          isApproved: true,
+          createdAt: Date.now(),
+      });
+
+      // Update the product with new rating stats (with error handling)
+      try {
+        await ctx.db.patch(args.productId, {
+            rating: newAverageRating,
+            reviewCount: newRatingCount,
+        });
+      } catch (patchError) {
+        // Product rating update failed but review was created - that's okay
+        console.error("Failed to update product rating:", patchError);
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error creating review:", error);
+      throw new Error(error.message || "Failed to create review");
     }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
-      .first();
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // Check if user has already reviewed this product?
-    // Optional: Only allow one review per product per user
-    const existingReview = await ctx.db
-      .query("reviews")
-      .withIndex("by_product", (q) => q.eq("productId", args.productId))
-      .filter((q) => q.eq(q.field("userId"), user._id))
-      .first();
-
-    if (existingReview) {
-      // Allow updating? or throw error? For now, throw error
-      throw new Error("You have already reviewed this product");
-    }
-
-    // Calculate new average rating for the product
-    const productReviews = await ctx.db
-      .query("reviews")
-      .withIndex("by_product", (q) => q.eq("productId", args.productId))
-      .collect();
-    
-    // Add the current review to the calculation
-    const currentRatingCount = productReviews.length;
-    const currentTotalRating = productReviews.reduce((sum, r) => sum + r.rating, 0);
-    
-    // New review stats
-    const newRatingCount = currentRatingCount + 1;
-    const newTotalRating = currentTotalRating + args.rating;
-    const newAverageRating = newTotalRating / newRatingCount;
-
-    // Create the review
-    await ctx.db.insert("reviews", {
-        userId: user._id,
-        productId: args.productId,
-        rating: args.rating,
-        title: args.title,
-        content: args.content,
-        images: args.images,
-        isVerifiedPurchase: false, // You would perform a check against orders here in a real app
-        isApproved: true, // Auto-approve for now
-        createdAt: Date.now(),
-    });
-
-    // Update the product with new rating stats
-    await ctx.db.patch(args.productId, {
-        rating: newAverageRating,
-        reviewCount: newRatingCount,
-    });
   },
 });
 

@@ -63,7 +63,7 @@ export default function ProductReviews({ productId, productName }: ProductReview
           {reviews === undefined ? (
             <p>Loading reviews...</p>
           ) : reviews.length === 0 ? (
-            <div className="min-h-[200px] flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl text-center">
+            <div className="min-h-50 flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl text-center">
               <Star className="h-12 w-12 text-gray-300 mb-4" />
               <h3 className="font-medium text-lg text-gray-900">No reviews yet</h3>
               <p className="text-gray-500 mt-1">Be the first to review {productName}</p>
@@ -169,7 +169,7 @@ export default function ProductReviews({ productId, productName }: ProductReview
                   value={reviewContent}
                   onChange={(e) => setReviewContent(e.target.value)}
                   required
-                  className="min-h-[100px] bg-white"
+                  className="min-h-25 bg-white"
                 />
               </div>
 
