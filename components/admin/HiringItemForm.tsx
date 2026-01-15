@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Upload, Sparkles, Tag, DollarSign, FileText, Image as ImageIcon, Trash2, ShieldCheck, Layers } from "lucide-react";
@@ -35,6 +36,9 @@ const formSchema = z.object({
   images: z.array(z.instanceof(File)).optional(),
   stockQuantity: z.string().min(1, "Quantity is required"),
   sku: z.string().optional(),
+  isFeatured: z.boolean().default(false),
+  isNew: z.boolean().default(false),
+  isOnSale: z.boolean().default(false),
 });
 
 type FormData = {
@@ -47,6 +51,9 @@ type FormData = {
   images?: File[];
   stockQuantity: string;
   sku?: string;
+  isFeatured: boolean;
+  isNew: boolean;
+  isOnSale: boolean;
 };
 
 interface HiringItemFormProps {
@@ -65,6 +72,9 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
       name: "",
       description: "",
       hirePrice: "",
+      isFeatured: false,
+      isNew: false,
+      isOnSale: false,
       depositAmount: "",
       category: "decor",
       decorType: "table_decor",
@@ -136,6 +146,9 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
         description: data.description,
         price: 0, // Base price for sale is 0 for hire items
         category: "decor",
+        isFeatured: data.isFeatured,
+        isNew: data.isNew,
+        isOnSale: data.isOnSale,
         decorType: data.decorType,
         images: uploadedImages.length > 0 ? uploadedImages : undefined,
         imageStorageId: uploadedImages.length > 0 ? uploadedImages[0].storageId : undefined,
@@ -268,6 +281,47 @@ export default function HiringItemForm({ onSuccess }: HiringItemFormProps) {
             </div>
           </div>
 
+
+          <div className="space-y-4 pt-4 border-t border-purple-100">
+            <h3 className="text-sm font-semibold text-purple-800">Status & Visibility</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="space-y-0.5">
+                  <Label htmlFor="isFeatured" className="text-sm font-medium">Featured Item</Label>
+                  <p className="text-[10px] text-muted-foreground">Display on homepage</p>
+                </div>
+                <Switch
+                  id="isFeatured"
+                  checked={watch("isFeatured")}
+                  onCheckedChange={(checked) => setValue("isFeatured", checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="space-y-0.5">
+                  <Label htmlFor="isNew" className="text-sm font-medium">New Arrival</Label>
+                  <p className="text-[10px] text-muted-foreground">Mark as new item</p>
+                </div>
+                <Switch
+                  id="isNew"
+                  checked={watch("isNew")}
+                  onCheckedChange={(checked) => setValue("isNew", checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-purple-50/50 border-purple-100">
+                <div className="space-y-0.5">
+                  <Label htmlFor="isOnSale" className="text-sm font-medium">On Sale</Label>
+                  <p className="text-[10px] text-muted-foreground">Mark as discounted</p>
+                </div>
+                <Switch
+                  id="isOnSale"
+                  checked={watch("isOnSale")}
+                  onCheckedChange={(checked) => setValue("isOnSale", checked)}
+                />
+              </div>
+            </div>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="stockQuantity" className="flex items-center gap-2">
               <Layers className="h-4 w-4 text-purple-600" />

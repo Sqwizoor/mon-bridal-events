@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, ShoppingBag, Menu, LayoutDashboard, Gem, Calendar, ChevronDown, X, Heart, Home, Layers, Info, ArrowRight } from "lucide-react";
+import { Search, ShoppingBag, Menu, LayoutDashboard, Gem, Calendar, ChevronDown, X, Heart, Home, Layers, Info, ArrowRight, Phone } from "lucide-react";
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { LiveSearch } from "@/components/LiveSearch";
@@ -137,6 +137,10 @@ export default function Navbar() {
 
             <Link href="/categories" className="px-4 py-2 hover:text-amber-400 transition-colors uppercase cursor-pointer">
               Categories
+            </Link>
+
+            <Link href="/contact" className="px-4 py-2 hover:text-amber-400 transition-colors uppercase cursor-pointer">
+              Contact Us
             </Link>
           </div>
         </div>
@@ -306,6 +310,13 @@ export default function Navbar() {
                   
                   <SheetClose asChild>
                     <Link href="/about" className="flex items-center gap-4 text-lg font-medium hover:text-amber-400 transition-colors py-3 pl-4 border-b border-gray-100 cursor-pointer">
+                  
+                  <SheetClose asChild>
+                    <Link href="/contact" className="flex items-center gap-4 text-lg font-medium hover:text-amber-400 transition-colors py-3 pl-4 border-b border-gray-100 cursor-pointer">
+                      <Phone className="h-5 w-5" />
+                      Contact Us
+                    </Link>
+                  </SheetClose>
                       <Info className="h-5 w-5" />
                       About Us
                     </Link>

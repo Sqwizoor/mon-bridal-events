@@ -2,7 +2,7 @@
 
 import { useCart } from "@/lib/CartContext";
 import { Button } from "@/components/ui/button";
-import { Trash2, Loader2, MapPin } from "lucide-react";
+import { Trash2, Loader2, MapPin, Plus, Minus } from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -24,7 +24,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CartPage() {
-  const { items, removeFromCart, total: baseTotal, clearCart, isLoading } = useCart();
+  const { items, removeFromCart, updateQuantity, total: baseTotal, clearCart, isLoading } = useCart();
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -170,8 +170,28 @@ export default function CartPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-lg leading-tight">{item.name}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <span className="w-8 text-center text-sm">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                     R{item.price.toFixed(2)} x {item.quantity}
+                     R{item.price.toFixed(2)} each
                      {item.isForHire && (
                         <span className="block text-xs font-semibold text-purple-600">
                            {rentalDays} Day Rental ({rentalDays} x per day fee)
