@@ -36,9 +36,9 @@ const formSchema = z.object({
   images: z.array(z.instanceof(File)).optional(),
   stockQuantity: z.string().min(1, "Quantity is required"),
   sku: z.string().optional(),
-  isFeatured: z.boolean().default(false),
-  isNew: z.boolean().default(false),
-  isOnSale: z.boolean().default(false),
+  isFeatured: z.boolean(),
+  isNew: z.boolean(),
+  isOnSale: z.boolean(),
 });
 
 type FormData = {
