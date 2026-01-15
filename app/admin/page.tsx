@@ -1,65 +1,26 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@clerk/nextjs";
-import {
-  Package,
+import {e,
   ShoppingCart,
   Calendar,
   TrendingUp,
   Layers,
   ArrowUpRight,
   ArrowDownRight,
-  Shield,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
-  const { getToken } = useAuth();
   const productStats = useQuery(api.products.getStats);
   const orderStats = useQuery(api.orders.getStats);
   const hireStats = useQuery(api.hireRequests.getStats);
-  const seedCategories = useMutation(api.categories.seedDecorCategories);
-  const setAdmin = useMutation(api.users.setAdmin);
-
-  const handleSeedCategories = async () => {
-    try {
-      await seedCategories();
-      toast.success("Categories seeded successfully!");
-    } catch (error) {
-      toast.error("Failed to seed categories");
-    }
-  };
-
-  const handleSetAdmin = async () => {
-    try {
-      const result = await setAdmin();
-      toast.success(result + " - Please refresh the page");
-      setTimeout(() => window.location.reload(), 2000);
-    } catch (error) {
-      toast.error("Failed to set admin role");
-    }
-  };
-
-  const checkAuth = async () => {
-    try {
-      const token = await getToken({ template: "convex" });
-      console.log("🔑 Clerk Token:", token ? "EXISTS" : "NULL");
-      if (token) {
-        toast.success("Auth token exists! Try creating a product now.");
-      } else {
-        toast.error("No auth token! Please sign out and sign back in.");
-      }
-    } catch (error) {
-      console.error("Auth check error:", error);
-      toast.error("Auth check failed - please sign out and sign back in");
-    }
-  };
 
   return (
     <div className="space-y-8">
@@ -72,14 +33,12 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="destructive" onClick={handleSetAdmin} className="cursor-pointer">
-            <Shield className="mr-2 h-4 w-4" />
-            Fix Admin Role (Click Once)
-          </Button>
-          <Button variant="outline" onClick={handleSeedCategories} className="cursor-pointer">
-            <Layers className="mr-2 h-4 w-4" />
-            Seed Categories
-          </Button>
-        </div>
+           Link href="/admin/products/create">
+            <Button className="cursor-pointer">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          </Link
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
