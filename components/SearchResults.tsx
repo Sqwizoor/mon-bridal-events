@@ -47,23 +47,31 @@ export default function SearchResults() {
   };
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-serif font-bold">
-        Search Results for "{query}"
-      </h1>
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+          Results for: <span className="text-amber-600">"{query}"</span>
+        </h2>
+      </div>
 
       {query.length < 2 ? (
-        <p className="text-muted-foreground">Type at least 2 characters.</p>
+        <div className="bg-white rounded-xl p-8 text-center">
+          <p className="text-muted-foreground">Type at least 2 characters to search.</p>
+        </div>
       ) : null}
       
       {query.length >= 2 && results === undefined ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-           {[...Array(4)].map((_, i) => (
-             <Skeleton key={i} className="h-62.5 w-full rounded-xl" />
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+           {[...Array(8)].map((_, i) => (
+             <Skeleton key={i} className="aspect-square rounded-xl" />
            ))}
         </div>
       ) : query.length >= 2 && results && results.length === 0 ? (
-        <p className="text-muted-foreground">No results found.</p>
+        <div className="bg-white rounded-xl p-8 md:p-12 text-center">
+          <div className="text-5xl mb-4">🔍</div>
+          <h3 className="text-lg font-semibold mb-2">No results found</h3>
+          <p className="text-muted-foreground">Try a different search term or browse our categories.</p>
+        </div>
       ) : query.length >= 2 && results ? (
         <>
           {/* Results count */}
@@ -71,8 +79,8 @@ export default function SearchResults() {
             Showing {startIndex + 1}-{Math.min(endIndex, totalProducts)} of {totalProducts} results
           </p>
 
-          {/* Products grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {/* Products grid - 2 columns on mobile */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {currentProducts.map((product: any) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -80,12 +88,13 @@ export default function SearchResults() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-8">
+            <div className="flex items-center justify-center gap-1 md:gap-2 pt-6 md:pt-8 flex-wrap">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
+                className="h-8 w-8 md:h-10 md:w-10"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -97,12 +106,12 @@ export default function SearchResults() {
                     variant={currentPage === page ? "default" : "outline"}
                     size="icon"
                     onClick={() => setCurrentPage(page)}
-                    className="w-10 h-10"
+                    className="h-8 w-8 md:h-10 md:w-10 text-xs md:text-sm"
                   >
                     {page}
                   </Button>
                 ) : (
-                  <span key={index} className="px-2 text-muted-foreground">...</span>
+                  <span key={index} className="px-1 md:px-2 text-muted-foreground text-sm">...</span>
                 )
               ))}
 
@@ -111,6 +120,7 @@ export default function SearchResults() {
                 size="icon"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
+                className="h-8 w-8 md:h-10 md:w-10"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
