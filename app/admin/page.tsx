@@ -42,6 +42,7 @@ export default function AdminPage() {
             </Button>
           </Link>
         </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-linear-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20 hover:shadow-lg transition-shadow">
