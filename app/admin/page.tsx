@@ -33,13 +33,15 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="destructive" onClick={handleSetAdmin} className="cursor-pointer">
-           Link href="/admin/products/create">
+            Set Admin
+          </Button>
+          <Link href="/admin/products/create" passHref>
             <Button className="cursor-pointer">
               <Plus className="mr-2 h-4 w-4" />
               Add Product
             </Button>
-          </Link
-      </div>
+          </Link>
+        </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-linear-to-br from-violet-500/10 to-purple-500/10 border-violet-500/20 hover:shadow-lg transition-shadow">
