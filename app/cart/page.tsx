@@ -22,6 +22,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { initiatePayFastPayment } from "@/lib/payfast";
 
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, total: baseTotal, clearCart, isLoading } = useCart();
@@ -92,7 +93,7 @@ export default function CartPage() {
         imageStorageId: undefined 
       }));
 
-      await createOrder({
+      const orderId = await createOrder({
         items: orderItems,
         guestName: formData.name,
         guestEmail: formData.email,
@@ -109,12 +110,13 @@ export default function CartPage() {
         rentalEndDate: endDate ? new Date(endDate).getTime() : undefined,
       });
 
-      toast.success("Order submitted successfully! We will contact you soon.");
+      toast.success("Order created! Redirecting to payment...");
       clearCart();
+      await initiatePayFastPayment(orderId);
       setOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to submit order. Please try again.");
+      toast.error(error.message || "Failed to submit order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

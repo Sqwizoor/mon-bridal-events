@@ -25,7 +25,6 @@ import Link from "next/link";
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
-import { PayfastButton } from "@/components/PayfastButton";
 import { Star } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
@@ -450,17 +449,6 @@ export default function ProductPage() {
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
-              {/* Payfast Payment Button */}
-              {!isOutOfStock && (
-                <div className="mt-4">
-                  <PayfastButton
-                    amount={activePrice.toString()}
-                    itemName={product.name}
-                    itemDescription={product.description}
-                    email={isSignedIn ? (typeof window !== 'undefined' ? window.localStorage.getItem('userEmail') || '' : '') : ''}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Trust Badges */}

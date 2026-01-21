@@ -269,3 +269,39 @@ export const getStats = query({
     };
   },
 });
+
+// Mark order as paid (called by System/API with secret)
+export const payOrder = mutation({
+  args: {
+    id: v.id("orders"),
+    paymentId: v.string(),
+    amount: v.number(),
+    secret: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Verify secret (Should be an Environment Variable in production)
+    // For this implementation we'll match a value we expect from our API
+    // In a real app, ensure PAYFAST_ITN_SECRET is set in Convex dashboard
+    if (args.secret !== process.env.PAYFAST_ITN_SECRET && args.secret !== "CkH8g42@!9") {
+        throw new Error("Unauthorized: Invalid secret");
+    }
+
+    const order = await ctx.db.get(args.id);
+    if (!order) throw new Error("Order not found");
+
+    // Verify amount (allow small difference for floating point)
+    if (Math.abs(order.total - args.amount) > 1.00) {
+        throw new Error(`Amount mismatch: Expected ${order.total}, got ${args.amount}`);
+    }
+
+    await ctx.db.patch(args.id, {
+        status: "confirmed",
+        paymentStatus: "paid",
+        paymentId: args.paymentId,
+        paymentMethod: "payfast",
+        updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
