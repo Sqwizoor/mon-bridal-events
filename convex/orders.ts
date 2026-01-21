@@ -148,9 +148,9 @@ export const create = mutation({
       },
       0
     );
-    const tax = subtotal * 0.15; // 15% VAT
+    const tax = 0; // No VAT
     const shippingCost = subtotal > 1000 ? 0 : 80; // Free shipping over R1000, otherwise R80
-    const total = subtotal + tax + shippingCost;
+    const total = subtotal + shippingCost;
 
     const now = Date.now();
 
