@@ -20,18 +20,53 @@ const PAYFAST_HOST = process.env.NODE_ENV === 'production'
     ? 'www.payfast.co.za'
     : 'sandbox.payfast.co.za';
 
+// PayFast requires fields in a SPECIFIC ORDER for signature generation
+const PAYFAST_FIELD_ORDER = [
+  'merchant_id',
+  'merchant_key',
+  'return_url',
+  'cancel_url',
+  'notify_url',
+  'name_first',
+  'name_last',
+  'email_address',
+  'cell_number',
+  'm_payment_id',
+  'amount',
+  'item_name',
+  'item_description',
+  'custom_int1',
+  'custom_int2',
+  'custom_int3',
+  'custom_int4',
+  'custom_int5',
+  'custom_str1',
+  'custom_str2',
+  'custom_str3',
+  'custom_str4',
+  'custom_str5',
+  'email_confirmation',
+  'confirmation_address',
+  'payment_method',
+];
+
 function generateSignature(data: Record<string, string>, passphrase?: string) {
   let pfOutput = '';
-  Object.keys(data).forEach((key) => {
-    if (data[key] !== '') {
+  
+  // Use the REQUIRED field order for PayFast
+  PAYFAST_FIELD_ORDER.forEach((key) => {
+    if (data[key] && data[key] !== '') {
       pfOutput += `${key}=${encodeURIComponent(data[key].trim()).replace(/%20/g, '+')}&`;
     }
   });
-  if (passphrase) {
+  
+  // Remove trailing ampersand if no passphrase
+  if (passphrase && passphrase.trim() !== '') {
     pfOutput += `passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
   } else {
     pfOutput = pfOutput.slice(0, -1);
   }
+  
   return crypto.createHash('md5').update(pfOutput).digest('hex');
 }
 
@@ -69,24 +104,18 @@ export async function POST(req: Request) {
              return NextResponse.json({ error: 'Order is already paid' }, { status: 400 });
         }
 
-        // Prepare Payfast data
+        // Prepare Payfast data - ORDER MATTERS for signature!
         const data: Record<string, string> = {
             merchant_id: PAYFAST_MERCHANT_ID || '',
             merchant_key: PAYFAST_MERCHANT_KEY || '',
             return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-success?orderId=${orderId}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-cancel?orderId=${orderId}`,
             notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payfast`,
-            
-            // Item Details
-            m_payment_id: orderId, // Use Order ID as merchant payment id
+            email_address: order.guestEmail || '',
+            m_payment_id: orderId,
             amount: order.total.toFixed(2),
-            item_name: `Order ${order.orderNumber}`,
-            item_description: `Payment for Order ${order.orderNumber}`,
-            
-            // User Details
-            email_address: order.guestEmail || '', // If auth user, might need to fetch user details. But schema has guestEmail or userId.
-            
-            // Custom String to store Order ID securely for ITN
+            item_name: `Order ${order.orderNumber}`.substring(0, 100), // Max 100 chars
+            item_description: `Payment for Order ${order.orderNumber}`.substring(0, 255), // Max 255 chars
             custom_str1: orderId,
         };
 
