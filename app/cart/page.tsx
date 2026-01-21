@@ -261,7 +261,7 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Shipping</span>
-              <span>{effectiveTotal > 1000 ? "FREE" : `R150.00`}</span>
+              <span>{effectiveTotal > 1000 ? "FREE" : `R80.00`}</span>
             </div>
             {effectiveTotal <= 1000 && (
               <p className="text-xs text-muted-foreground italic">
@@ -270,7 +270,7 @@ export default function CartPage() {
             )}
             <div className="flex justify-between font-bold text-lg pt-4 border-t border-muted-foreground/20">
               <span>Total</span>
-              <span>R{(effectiveTotal + (effectiveTotal * 0.15) + (effectiveTotal > 1000 ? 0 : 150)).toFixed(2)}</span>
+              <span>R{(effectiveTotal + (effectiveTotal * 0.15) + (effectiveTotal > 1000 ? 0 : 80)).toFixed(2)}</span>
             </div>
             
             <Dialog open={open} onOpenChange={setOpen}>
