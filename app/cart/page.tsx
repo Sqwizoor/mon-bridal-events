@@ -255,9 +255,22 @@ export default function CartPage() {
               <span>Subtotal</span>
               <span>R{effectiveTotal.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>VAT (15%)</span>
+              <span>R{(effectiveTotal * 0.15).toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Shipping</span>
+              <span>{effectiveTotal > 1000 ? "FREE" : `R150.00`}</span>
+            </div>
+            {effectiveTotal <= 1000 && (
+              <p className="text-xs text-muted-foreground italic">
+                Free shipping on orders over R1,000
+              </p>
+            )}
             <div className="flex justify-between font-bold text-lg pt-4 border-t border-muted-foreground/20">
               <span>Total</span>
-              <span>R{effectiveTotal.toFixed(2)}</span>
+              <span>R{(effectiveTotal + (effectiveTotal * 0.15) + (effectiveTotal > 1000 ? 0 : 150)).toFixed(2)}</span>
             </div>
             
             <Dialog open={open} onOpenChange={setOpen}>
