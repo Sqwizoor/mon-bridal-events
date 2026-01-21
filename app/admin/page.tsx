@@ -1,12 +1,14 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@clerk/nextjs";
-import {e,
+import { toast } from "sonner";
+import {
+  Package,
   ShoppingCart,
   Calendar,
   TrendingUp,
@@ -21,6 +23,16 @@ export default function AdminPage() {
   const productStats = useQuery(api.products.getStats);
   const orderStats = useQuery(api.orders.getStats);
   const hireStats = useQuery(api.hireRequests.getStats);
+  const setAdmin = useMutation(api.users.setAdmin);
+
+  const handleSetAdmin = async () => {
+    try {
+      await setAdmin();
+      toast.success("You are now an admin!");
+    } catch (error) {
+      toast.error("Failed to set admin role");
+    }
+  };
 
   return (
     <div className="space-y-8">
