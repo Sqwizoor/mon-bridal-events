@@ -70,11 +70,24 @@ function generateSignature(data: Record<string, string>, passphrase?: string) {
   return crypto.createHash('md5').update(pfOutput).digest('hex');
 }
 
-async function validatePayfastSignature(data: Record<string, string>, passphrase?: string) {
-    const signature = data['signature'];
-    const temp = { ...data };
-    delete temp['signature'];
-    const generatedSignature = generateSignature(temp, passphrase);
+// Fixed ITN validation to use the exact fields provided in the URL in the order they were provided
+async function validatePayfastItnSignature(params: URLSearchParams, passphrase?: string) {
+    const signature = params.get('signature');
+    let pfOutput = '';
+    
+    for (const [key, value] of params.entries()) {
+        if (key !== 'signature') {
+            pfOutput += `${key}=${encodeURIComponent(value.trim()).replace(/%20/g, '+')}&`;
+        }
+    }
+
+    if (passphrase && passphrase.trim() !== '') {
+        pfOutput += `passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
+    } else if (pfOutput.length > 0) {
+        pfOutput = pfOutput.slice(0, -1);
+    }
+    
+    const generatedSignature = crypto.createHash('md5').update(pfOutput).digest('hex');
     return signature === generatedSignature;
 }
 
@@ -119,6 +132,13 @@ export async function POST(req: Request) {
             custom_str1: orderId,
         };
 
+        // Remove empty fields to avoid signature mismatch!
+        Object.keys(data).forEach(key => {
+            if (data[key] === '' || data[key] === null || data[key] === undefined) {
+                delete data[key];
+            }
+        });
+
         // Generate signature
         data['signature'] = generateSignature(data, PAYFAST_PASSPHRASE);
 
@@ -145,8 +165,8 @@ export async function POST(req: Request) {
 
         console.log("Received ITN:", data);
 
-        // A. Validate Signature
-        const isValidSignature = await validatePayfastSignature(data, PAYFAST_PASSPHRASE);
+        // A. Validate Signature checking params
+        const isValidSignature = await validatePayfastItnSignature(params, PAYFAST_PASSPHRASE);
         if (!isValidSignature) {
             console.error("Invalid ITN Signature");
             return new NextResponse('Invalid Signature', { status: 400 });
